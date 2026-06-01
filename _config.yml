@@ -1,0 +1,149 @@
+# The Site Configuration
+
+theme: jekyll-theme-chirpy
+
+lang: ko
+timezone: Asia/Seoul
+
+title: Aka-rang
+tagline: Black notes for code, systems, and ideas
+
+description: >-
+  차분한 블랙 톤 위에 개발, 디자인, 기록을 쌓아가는 개인 기술 블로그.
+
+url: "https://aka-rang.github.io"
+baseurl: ""
+
+github:
+  username: Aka-rang
+
+social:
+  name: 한혁
+  email: gksgur486@gmail.com
+  links:
+    - https://github.com/Aka-rang
+    - https://aka-rang.github.io
+
+theme_mode: dark
+
+avatar: https://avatars.githubusercontent.com/u/273747484?v=4
+social_preview_image: https://avatars.githubusercontent.com/u/273747484?v=4
+
+toc: true
+paginate: 5
+
+analytics:
+  google:
+    id:
+  goatcounter:
+    id:
+  umami:
+    id:
+    domain:
+  matomo:
+    id:
+    domain:
+  cloudflare:
+    id:
+  fathom:
+    id:
+
+pageviews:
+  provider:
+
+comments:
+  provider:
+  disqus:
+    shortname:
+  utterances:
+    repo:
+    issue_term:
+  giscus:
+    repo:
+    repo_id:
+    category:
+    category_id:
+    mapping:
+    strict:
+    input_position:
+    lang:
+    reactions_enabled:
+
+assets:
+  self_host:
+    enabled:
+    env:
+
+pwa:
+  enabled: true
+  cache:
+    enabled: true
+    deny_paths:
+
+kramdown:
+  footnote_backlink: "&#8617;&#xfe0e;"
+  syntax_highlighter: rouge
+  syntax_highlighter_opts:
+    css_class: highlight
+    span:
+      line_numbers: false
+    block:
+      line_numbers: true
+      start_line: 1
+
+collections:
+  tabs:
+    output: true
+    sort_by: order
+
+defaults:
+  - scope:
+      path: ""
+      type: posts
+    values:
+      layout: post
+      comments: false
+      toc: true
+      permalink: /posts/:title/
+  - scope:
+      path: _drafts
+    values:
+      comments: false
+  - scope:
+      path: ""
+      type: tabs
+    values:
+      layout: page
+      permalink: /:title/
+
+sass:
+  style: compressed
+
+compress_html:
+  clippings: all
+  comments: all
+  endings: all
+  profile: false
+  blanklines: false
+  ignore:
+    envs: [development]
+
+exclude:
+  - "*.gem"
+  - "*.gemspec"
+  - docs
+  - tools
+  - README.md
+  - LICENSE
+  - purgecss.js
+  - "*.config.js"
+  - "package*.json"
+
+jekyll-archives:
+  enabled: [categories, tags]
+  layouts:
+    category: category
+    tag: tag
+  permalinks:
+    tag: /tags/:name/
+    category: /categories/:name/

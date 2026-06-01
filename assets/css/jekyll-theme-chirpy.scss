@@ -1,0 +1,157 @@
+---
+---
+
+/* prettier-ignore */
+@use 'main
+{%- if jekyll.environment == 'production' -%}
+  .bundle
+{%- endif -%}
+';
+
+html[data-mode='dark'] {
+  --main-bg: #050608;
+  --mask-bg: #101215;
+  --main-border-color: #171b20;
+  --text-color: #c3ced1;
+  --text-muted-color: #7d8a90;
+  --text-muted-highlight-color: #d9ece8;
+  --heading-color: #f2f7f6;
+  --label-color: #9fb7b2;
+  --blockquote-border-color: rgba(83, 243, 195, 0.5);
+  --blockquote-text-color: #9fb4b4;
+  --link-color: #53f3c3;
+  --link-underline-color: rgba(83, 243, 195, 0.45);
+  --button-bg: #0f1317;
+  --btn-border-color: #1d242b;
+  --btn-backtotop-color: #d8fffa;
+  --btn-backtotop-border-color: #1a2026;
+  --card-header-bg: #0e1216;
+  --checkbox-color: #6f7e83;
+  --checkbox-checked-color: #53f3c3;
+  --img-bg: radial-gradient(circle, #071012 0%, #0b0f12 100%);
+  --shimmer-bg: linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, rgba(83, 243, 195, 0.14) 50%, rgba(255, 255, 255, 0) 100%);
+
+  --site-title-color: #f4fffd;
+  --site-subtitle-color: #8aa39e;
+  --sidebar-bg: #040608;
+  --sidebar-border-color: #11161b;
+  --sidebar-muted-color: #7f9490;
+  --sidebar-active-color: #f5fffd;
+  --sidebar-hover-bg: rgba(83, 243, 195, 0.09);
+  --sidebar-btn-bg: #0c1014;
+  --sidebar-btn-color: #87bfb3;
+  --avatar-border-color: rgba(83, 243, 195, 0.65);
+
+  --topbar-bg: rgba(5, 6, 8, 0.72);
+  --topbar-text-color: #d8e3e0;
+  --search-border-color: #1d2629;
+  --search-icon-color: #6e8b87;
+  --input-focus-border-color: #53f3c3;
+
+  --post-list-text-color: #bcc8cb;
+  --btn-patinator-text-color: #d6ebe6;
+  --btn-paginator-hover-color: #0f1619;
+
+  --toc-highlight: #7affdd;
+  --toc-popup-border-color: #1b2528;
+  --tag-hover: rgba(83, 243, 195, 0.12);
+  --tb-odd-bg: #0b1014;
+  --tb-even-bg: #080d11;
+  --tb-border-color: #121920;
+  --footnote-target-bg: #123a35;
+  --btn-share-color: #8db5aa;
+  --btn-share-hover-color: #d8fff6;
+  --card-bg: #080c10;
+  --card-hover-bg: #10171d;
+  --card-shadow: rgba(0, 0, 0, 0.55) 0 12px 30px 0, rgba(83, 243, 195, 0.08) 0 0 0 1px;
+  --kbd-wrap-color: #27403c;
+  --kbd-text-color: #d8fffa;
+  --kbd-bg-color: #081012;
+  --prompt-text-color: rgba(230, 247, 244, 0.84);
+  --prompt-tip-bg: rgba(18, 63, 53, 0.52);
+  --prompt-tip-icon-color: #53f3c3;
+  --prompt-info-bg: rgba(7, 46, 67, 0.72);
+  --prompt-info-icon-color: #4cc9ff;
+  --prompt-warning-bg: rgba(84, 62, 7, 0.74);
+  --prompt-warning-icon-color: #ffbf47;
+  --prompt-danger-bg: rgba(86, 28, 8, 0.8);
+  --prompt-danger-icon-color: #ff6a5e;
+
+  --tag-border: #1d3b38;
+  --tag-shadow: #050708;
+  --dash-color: #1c2529;
+  --search-tag-bg: #0d1317;
+
+  --categories-border: rgba(44, 74, 71, 0.45);
+  --categories-hover-bg: rgba(83, 243, 195, 0.12);
+  --categories-icon-hover-color: #dffff8;
+
+  --timeline-node-bg: #7cd9c4;
+  --timeline-color: #1c282d;
+  --timeline-year-dot-color: #53f3c3;
+
+  --language-border-color: #182126;
+  --highlight-bg-color: #06090c;
+  --highlighter-rouge-color: #def7f1;
+  --highlight-lineno-color: #4d6461;
+  --inline-code-bg: rgba(83, 243, 195, 0.08);
+  --code-color: #d9fff5;
+  --code-header-text-color: #80a9a1;
+  --code-header-muted-color: #0d1418;
+  --code-header-icon-color: #64928a;
+  --clipboard-checked-color: #53f3c3;
+  --filepath-text-color: #dff8f3;
+}
+
+html[data-mode='dark'] body {
+  background-image:
+    radial-gradient(circle at top right, rgba(83, 243, 195, 0.08), transparent 28%),
+    radial-gradient(circle at bottom left, rgba(76, 201, 255, 0.05), transparent 25%);
+}
+
+html[data-mode='dark'] #sidebar {
+  background: linear-gradient(180deg, #040608 0%, #060b10 55%, #040608 100%);
+}
+
+html[data-mode='dark'] #sidebar #avatar {
+  box-shadow: rgba(83, 243, 195, 0.75) 0 0 0 2px, rgba(83, 243, 195, 0.12) 0 0 0 8px;
+}
+
+html[data-mode='dark'] #sidebar .site-title {
+  color: #f6fffd;
+  letter-spacing: 0.04em;
+}
+
+html[data-mode='dark'] #sidebar .site-subtitle {
+  max-width: 15rem;
+}
+
+html[data-mode='dark'] #topbar-wrapper,
+html[data-mode='dark'] #search-results > article,
+html[data-mode='dark'] .card,
+html[data-mode='dark'] .post-preview {
+  backdrop-filter: blur(18px);
+}
+
+html[data-mode='dark'] a:hover {
+  color: #8effe3;
+}
+
+html[data-mode='dark'] .post-tag,
+html[data-mode='dark'] a.btn,
+html[data-mode='dark'] .btn,
+html[data-mode='dark'] .categories .list-group-item {
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+}
+
+html[data-mode='dark'] .post-tag:hover,
+html[data-mode='dark'] a.btn:hover,
+html[data-mode='dark'] .btn:hover {
+  transform: translateY(-1px);
+}
+
+html[data-mode='dark'] blockquote {
+  background: linear-gradient(90deg, rgba(83, 243, 195, 0.08), transparent 70%);
+  border-radius: 0.75rem;
+  padding: 1rem 1.1rem 1rem 1.2rem;
+}
