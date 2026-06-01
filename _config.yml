@@ -18,16 +18,16 @@ github:
   username: Aka-rang
 
 social:
-  name: 한혁
-  email: gksgur486@gmail.com
+  name: Archive
+  email:
   links:
     - https://github.com/Aka-rang
     - https://aka-rang.github.io
 
 theme_mode: dark
 
-avatar: https://avatars.githubusercontent.com/u/273747484?v=4
-social_preview_image: https://avatars.githubusercontent.com/u/273747484?v=4
+avatar:
+social_preview_image:
 
 toc: true
 paginate: 5
