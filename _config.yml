@@ -35,8 +35,8 @@ live2d:
   desktop_left_rem: 0.35
   desktop_bottom_rem: 0.4
   desktop_width: 250
-  desktop_zoom: 1.9
-  desktop_y_ratio: 1.62
+  desktop_zoom: 2.2
+  desktop_y_ratio: 1.8
   mobile_width: 150
   mobile_bottom_rem: 0.15
   mobile_zoom: 1.65
