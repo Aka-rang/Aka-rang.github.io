@@ -158,13 +158,14 @@ html[data-mode='dark'] blockquote {
 
 #live2d-assistant {
   position: fixed;
-  left: 17rem;
-  bottom: 0.75rem;
-  width: 320px;
-  height: 432px;
-  z-index: 35;
+  left: 0.35rem;
+  bottom: 0.4rem;
+  width: 250px;
+  height: 310px;
+  z-index: 25;
   pointer-events: none;
   user-select: none;
+  overflow: hidden;
   opacity: 0;
   transform: translate3d(0, 20px, 0);
   transition: opacity 0.35s ease, transform 0.35s ease;
@@ -185,9 +186,9 @@ html[data-mode='dark'] blockquote {
 @media (max-width: 991.98px) {
   #live2d-assistant {
     left: 0.75rem;
-    bottom: 0.25rem;
-    width: 180px;
-    height: 256px;
+    bottom: 0.15rem;
+    width: 150px;
+    height: 192px;
     z-index: 20;
     opacity: 0.92;
   }

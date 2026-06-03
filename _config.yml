@@ -32,9 +32,15 @@ social_preview_image: https://avatars.githubusercontent.com/u/273747484?v=4
 live2d:
   cubism_core: /assets/live2d/cubism/live2dcubismcore.min.js
   model: /assets/live2d/yachiyo/model.model3.json
-  desktop_left_rem: 17
-  desktop_width: 320
-  mobile_width: 180
+  desktop_left_rem: 0.35
+  desktop_bottom_rem: 0.4
+  desktop_width: 250
+  desktop_zoom: 1.9
+  desktop_y_ratio: 1.46
+  mobile_width: 150
+  mobile_bottom_rem: 0.15
+  mobile_zoom: 1.65
+  mobile_y_ratio: 1.34
 
 toc: true
 paginate: 5
