@@ -18,7 +18,7 @@ github:
   username: Aka-rang
 
 social:
-  name: Archive
+  name: Aka-rang
   email:
   links:
     - https://github.com/Aka-rang
@@ -26,8 +26,8 @@ social:
 
 theme_mode: dark
 
-avatar: /assets/img/site-avatar.svg
-social_preview_image:
+avatar: https://avatars.githubusercontent.com/u/273747484?v=4
+social_preview_image: https://avatars.githubusercontent.com/u/273747484?v=4
 
 toc: true
 paginate: 5
