@@ -26,7 +26,7 @@ social:
 
 theme_mode: dark
 
-avatar:
+avatar: /assets/img/site-avatar.svg
 social_preview_image:
 
 toc: true
