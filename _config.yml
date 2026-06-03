@@ -36,11 +36,11 @@ live2d:
   desktop_bottom_rem: 0.4
   desktop_width: 250
   desktop_zoom: 1.9
-  desktop_y_ratio: 1.46
+  desktop_y_ratio: 1.62
   mobile_width: 150
   mobile_bottom_rem: 0.15
   mobile_zoom: 1.65
-  mobile_y_ratio: 1.34
+  mobile_y_ratio: 1.48
 
 toc: true
 paginate: 5
