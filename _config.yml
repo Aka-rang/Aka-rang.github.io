@@ -33,14 +33,14 @@ live2d:
   cubism_core: /assets/live2d/cubism/live2dcubismcore.min.js
   model: /assets/live2d/yachiyo/model.model3.json
   desktop_left_rem: 0.35
-  desktop_bottom_rem: 0.4
-  desktop_width: 250
+  desktop_bottom_rem: -0.35
+  desktop_width: 280
   desktop_zoom: 2.2
-  desktop_y_ratio: 1.8
-  mobile_width: 150
-  mobile_bottom_rem: 0.15
-  mobile_zoom: 1.65
-  mobile_y_ratio: 1.48
+  desktop_y_ratio: 1.82
+  mobile_width: 165
+  mobile_bottom_rem: -0.05
+  mobile_zoom: 1.82
+  mobile_y_ratio: 1.6
 
 toc: true
 paginate: 5
