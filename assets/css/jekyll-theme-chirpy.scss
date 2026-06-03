@@ -155,3 +155,40 @@ html[data-mode='dark'] blockquote {
   border-radius: 0.75rem;
   padding: 1rem 1.1rem 1rem 1.2rem;
 }
+
+#live2d-assistant {
+  position: fixed;
+  left: 17rem;
+  bottom: 0.75rem;
+  width: 320px;
+  height: 432px;
+  z-index: 35;
+  pointer-events: none;
+  user-select: none;
+  opacity: 0;
+  transform: translate3d(0, 20px, 0);
+  transition: opacity 0.35s ease, transform 0.35s ease;
+  filter: drop-shadow(0 18px 24px rgba(0, 0, 0, 0.35));
+}
+
+#live2d-assistant.is-ready {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+}
+
+#live2d-assistant canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+@media (max-width: 991.98px) {
+  #live2d-assistant {
+    left: 0.75rem;
+    bottom: 0.25rem;
+    width: 180px;
+    height: 256px;
+    z-index: 20;
+    opacity: 0.92;
+  }
+}
