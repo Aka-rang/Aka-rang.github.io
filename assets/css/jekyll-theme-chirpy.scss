@@ -126,6 +126,16 @@ html[data-mode='dark'] #sidebar .site-subtitle {
   max-width: 15rem;
 }
 
+html[data-mode='dark'] #sidebar nav.flex-column > .nav {
+  padding-left: 1rem;
+  padding-right: 0.9rem;
+}
+
+html[data-mode='dark'] #sidebar nav .nav-link {
+  padding-left: 1.1rem;
+  padding-right: 1.1rem;
+}
+
 html[data-mode='dark'] #topbar-wrapper,
 html[data-mode='dark'] #search-results > article,
 html[data-mode='dark'] .card,
