@@ -126,14 +126,34 @@ html[data-mode='dark'] #sidebar .site-subtitle {
   max-width: 15rem;
 }
 
+html[data-mode='dark'] #sidebar nav.flex-column {
+  position: fixed;
+  top: 50%;
+  right: 1rem;
+  width: min(18rem, calc(100vw - 2rem));
+  transform: translateY(-50%);
+  z-index: 45;
+}
+
 html[data-mode='dark'] #sidebar nav.flex-column > .nav {
-  padding-left: 1rem;
-  padding-right: 0.9rem;
+  width: 100%;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+html[data-mode='dark'] #sidebar nav .nav-item {
+  width: 100%;
 }
 
 html[data-mode='dark'] #sidebar nav .nav-link {
+  width: 100%;
   padding-left: 1.1rem;
   padding-right: 1.1rem;
+  justify-content: flex-start;
+  background: rgba(4, 6, 8, 0.72);
+  border: 1px solid rgba(83, 243, 195, 0.08);
+  border-radius: 1rem;
+  margin-bottom: 0.7rem;
 }
 
 html[data-mode='dark'] #topbar-wrapper,
@@ -194,6 +214,21 @@ html[data-mode='dark'] blockquote {
 }
 
 @media (max-width: 991.98px) {
+  html[data-mode='dark'] #sidebar nav.flex-column {
+    position: static;
+    top: auto;
+    right: auto;
+    width: 100%;
+    transform: none;
+    z-index: auto;
+  }
+
+  html[data-mode='dark'] #sidebar nav .nav-link {
+    margin-bottom: 0;
+    background: transparent;
+    border: 0;
+  }
+
   #live2d-assistant {
     left: 0.75rem;
     bottom: 0.15rem;
