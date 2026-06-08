@@ -80,6 +80,9 @@ layout: compress
 
     {% include live2d-widget.html %}
     <script src="{{ '/assets/js/toc-anchor-fix.js' | relative_url }}?v=20260609-toc-anchor-2" data-turbo-eval="false"></script>
+    {% unless site.pwa.enabled %}
+      <script src="{{ '/assets/js/pwa-cache-reset.js' | relative_url }}?v=20260609-disable-pwa" data-turbo-eval="false"></script>
+    {% endunless %}
     {% include_cached search-loader.html lang=lang %}
   </body>
 </html>
