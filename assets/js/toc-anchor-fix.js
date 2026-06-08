@@ -144,10 +144,12 @@
     });
     setActiveLink(hash);
 
-    window.setTimeout(function () {
-      prepareToc();
-      setActiveLink(hash);
-    }, 250);
+    [250, 900, 1800].forEach(function (delay) {
+      window.setTimeout(function () {
+        prepareToc();
+        setActiveLink(hash);
+      }, delay);
+    });
 
     return true;
   }
