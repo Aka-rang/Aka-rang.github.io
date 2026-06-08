@@ -16,7 +16,7 @@ CTF 풀이를 대회와 문제 단위로 정리합니다.
 
 <div class="writeup-tree">
   {% for event in event_groups %}
-    <details class="writeup-tree-event" open>
+    <details class="writeup-tree-event">
       <summary>
         <span class="writeup-tree-icon"><i class="fas fa-folder-open"></i></span>
         <span class="writeup-tree-name">{{ event.name }}</span>
@@ -26,7 +26,7 @@ CTF 풀이를 대회와 문제 단위로 정리합니다.
       {% assign challenge_groups = event.items | group_by_exp: "post", "post.challenge | default: 'Unsorted Challenge'" | sort: "name" %}
       <div class="writeup-tree-children">
         {% for challenge in challenge_groups %}
-          <details class="writeup-tree-challenge" open>
+          <details class="writeup-tree-challenge">
             <summary>
               <span class="writeup-tree-icon"><i class="fas fa-cube"></i></span>
               <span class="writeup-tree-name">{{ challenge.name }}</span>

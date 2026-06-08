@@ -4,4 +4,5 @@ layout: archives
 icon: fas fa-clock
 order: 5
 permalink: /archives/
+nav_hidden: true
 ---

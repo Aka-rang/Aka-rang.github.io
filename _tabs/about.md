@@ -3,6 +3,7 @@ title: About
 icon: fas fa-terminal
 order: 6
 permalink: /about/
+nav_hidden: true
 ---
 
 # Aka-rang
