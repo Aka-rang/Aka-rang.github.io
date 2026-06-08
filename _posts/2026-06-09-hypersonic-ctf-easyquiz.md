@@ -1,5 +1,5 @@
 ---
-title: "[Hypersonic CTF] EasyQuiz Writeup"
+title: "[Hypersonic CTF] EasyQuiz 라이트업"
 date: 2026-06-09 00:00:00 +0900
 categories: [ctf, misc]
 tags: [writeup, misc, math]
@@ -10,54 +10,54 @@ toc: true
 comments: false
 ---
 
-## Challenge
+## 문제 개요
 
-`chall.py` has three independent quiz branches. Each successful branch prints one piece of the flag.
+`chall.py`에는 서로 독립적인 quiz branch가 3개 있다. 각 branch를 통과할 때마다 flag의 한 조각이 출력된다.
 
 ```python
 inp = int(input())
 ```
 
-The final flag is assembled from the three outputs:
+세 branch에서 나온 출력을 이어 붙이면 최종 flag가 된다.
 
 ```text
 HS{70927730afde31916a2f22a1385a5d2343377937a7c3cf1a796b78d05b7d070e50b8c5526395e3d968da2ca26f198476}
 ```
 
-## Part 1
+## 1번 파트
 
-The service asks five times for positive integers `x, y, z` such that:
+첫 번째 branch는 아래 식을 만족하는 양의 정수 `x, y, z`를 5번 요구한다.
 
 ```python
 x/(y+z) + y/(x+z) + z/(x+y) == N
 ```
 
-where `N` is randomly chosen from `4..50`.
+여기서 `N`은 `4..50` 범위에서 랜덤으로 선택된다.
 
-At first this looks like a hard Diophantine equation, but the check is done with Python `/`, so the comparison is a `float` comparison. We can abuse floating point rounding instead of finding exact integer solutions.
+처음 보면 정수해를 찾아야 하는 어려운 Diophantine equation처럼 보인다. 하지만 Python의 `/` 연산으로 계산되기 때문에 실제 비교는 `float` 비교다. 따라서 정확한 정수해를 찾는 대신 floating point rounding을 이용할 수 있다.
 
-Set:
+다음처럼 둔다.
 
 ```text
 y = z = S
 x = aS
 ```
 
-Then the expression becomes:
+그러면 식은 다음 형태로 단순화된다.
 
 ```text
 a/2 + 2/(a+1) = N
 ```
 
-Solving the quadratic gives:
+이를 이차방정식으로 풀면 `a`는 다음과 같다.
 
 ```text
 a = (2N - 1 + sqrt(4N^2 + 4N - 15)) / 2
 ```
 
-Use a huge scale such as `S = 10^40`, compute `x ~= aS`, then binary-search near that value until Python's floating point evaluation is exactly `N.0`.
+`S = 10^40`처럼 큰 scale을 잡고 `x ~= aS`를 계산한다. 이후 그 근처를 binary search하면서 Python의 floating point 평가 결과가 정확히 `N.0`이 되는 값을 찾는다.
 
-The solver handles every `N` in `4..50`:
+아래 solver는 `4..50` 범위의 모든 `N`에 대해 답을 구한다.
 
 ```python
 def quiz1_answer(n, exp=40):
@@ -87,15 +87,15 @@ def quiz1_answer(n, exp=40):
             return x, s, s
 ```
 
-This gives the first flag part:
+이를 통해 첫 번째 flag 조각을 얻을 수 있다.
 
 ```text
 HS{70927730afde31916a2f22a1385a5d23
 ```
 
-## Part 2
+## 2번 파트
 
-The second branch does this:
+두 번째 branch는 대략 다음 로직을 수행한다.
 
 ```python
 M = ast.literal_eval(input())
@@ -107,26 +107,28 @@ if norm(M.BKZ(block_size=30)[0]) > minkowski_bound:
     print("...")
 ```
 
-There are two bugs:
+여기에는 두 가지 문제가 있다.
 
-1. `n = len(M)` is computed before converting `M` to a Sage matrix.
-2. Sage creates a sparse matrix when the input is a dictionary of `(row, col): value` entries.
+1. `n = len(M)`이 `M`을 Sage matrix로 변환하기 전에 계산된다.
+2. 입력이 `(row, col): value` 형태의 dictionary이면 Sage가 sparse matrix를 만든다.
 
-Payload:
+payload는 다음과 같다.
 
 ```python
 {(0, 0): 100, (0, 1): 0, (1, 0): 0, (1, 1): 100}
 ```
 
-This makes `len(M) == 4`, while Sage converts it into a sparse `2x2` integer matrix. On the remote service, `Matrix_integer_sparse` has no `BKZ` method, so the program crashes. The unhandled traceback includes the actual source line containing the second flag piece:
+이 입력에서는 Python dictionary 기준으로 `len(M) == 4`가 된다. 하지만 Sage는 이를 sparse `2x2` integer matrix로 변환한다.
+
+원격 서비스에서 `Matrix_integer_sparse`에는 `BKZ` method가 없어서 프로그램이 crash한다. 이때 처리되지 않은 traceback에 두 번째 flag 조각이 들어 있는 실제 source line이 함께 노출된다.
 
 ```text
 43377937a7c3cf1a796b78d05b7d070e
 ```
 
-## Part 3
+## 3번 파트
 
-The third branch checks:
+세 번째 branch는 다음 조건들을 검사한다.
 
 ```python
 assert len(set(number)) > 21
@@ -136,29 +138,29 @@ assert all(abs(i) < 2424242 for i in number)
 assert all(int(i.real) == i.real and int(i.imag) == i.imag for i in number if isinstance(i, complex))
 ```
 
-So we need at least 22 distinct numbers, all with hash `42`.
+즉, 서로 다른 숫자 22개 이상이 필요하고, 모든 원소의 `hash` 값은 `42`여야 한다.
 
-For floats, CPython hashes numeric values using their exact integer ratio modulo:
+CPython에서 float hash는 숫자의 exact integer ratio를 아래 modulus 기준으로 계산한다.
 
 ```python
 sys.hash_info.modulus == 2**61 - 1
 ```
 
-Since `2^61 == 1 mod (2^61 - 1)`, values of the form:
+`2^61 == 1 mod (2^61 - 1)`이므로 다음 형태의 값들은 모두 `42`로 hash된다.
 
 ```text
 21 / 2^(60 + 61k)
 ```
 
-hash to `42`. This gives many tiny distinct floats under the size bound.
+이 값들은 매우 작은 서로 다른 float들이고, 문제의 크기 제한도 만족한다.
 
-For complex numbers, CPython combines the real and imaginary hashes using:
+complex number의 경우 CPython은 real part와 imaginary part의 hash를 아래 상수를 이용해 조합한다.
 
 ```python
 sys.hash_info.imag == 1000003
 ```
 
-So Gaussian integers such as these also hash to `42`:
+따라서 다음과 같은 Gaussian integer들도 `42`로 hash된다.
 
 ```python
 (2000048-1j)
@@ -167,30 +169,30 @@ So Gaussian integers such as these also hash to `42`:
 (-1999964+2j)
 ```
 
-The final payload is:
+최종 payload는 다음과 같다.
 
 ```python
 [2.8519623430573e-311, 6.576177431279442e-293, 1.5163632757264568e-274, 3.4964956587622276e-256, 8.062370071502912e-238, 1.85905596670687e-219, 4.286691204568042e-201, 9.884436946711048e-183, 2.279195983358722e-164, 5.25546812485564e-146, 1.2118284435843778e-127, 2.794286145005349e-109, 6.443185173203266e-91, 1.4856973488700075e-72, 3.4257848456992254e-54, 7.899322037525772e-36, 1.8214596497756474e-17, 42.0, (2000048-1j), (2000048-2j), (-999961+1j), (-1999964+2j)]
 ```
 
-This gives the last flag part:
+이를 통해 마지막 flag 조각을 얻을 수 있다.
 
 ```text
 50b8c5526395e3d968da2ca26f198476}
 ```
 
-## Exploit
+## 익스플로잇
 
-The full solver is in `solve_easyquiz.py`.
+전체 solver는 `solve_easyquiz.py`에 정리했다.
 
-Run:
+실행:
 
 ```powershell
 $env:PYTHONIOENCODING='utf-8'
-& 'C:\Users\한혁\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe' .\solve_easyquiz.py --host 15.165.245.192 --port 1337
+python .\solve_easyquiz.py --host 15.165.245.192 --port 1337
 ```
 
-Remote output:
+원격 실행 결과:
 
 ```text
 HS{70927730afde31916a2f22a1385a5d23
@@ -198,7 +200,7 @@ HS{70927730afde31916a2f22a1385a5d23
 50b8c5526395e3d968da2ca26f198476}
 ```
 
-Final flag:
+최종 flag:
 
 ```text
 HS{70927730afde31916a2f22a1385a5d2343377937a7c3cf1a796b78d05b7d070e50b8c5526395e3d968da2ca26f198476}
