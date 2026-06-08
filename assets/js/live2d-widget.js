@@ -33,6 +33,7 @@
   mount.appendChild(app.view);
 
   const state = {
+    expressionTimerId: 0,
     model: null,
     rafId: 0
   };
@@ -78,6 +79,28 @@
     });
   }
 
+  function hasExpressions() {
+    return Boolean(state.model?.internalModel?.motionManager?.expressionManager);
+  }
+
+  function applyRandomExpression() {
+    if (!state.model || typeof state.model.expression !== "function" || !hasExpressions()) {
+      return;
+    }
+
+    Promise.resolve(state.model.expression()).catch((error) => {
+      console.warn("Live2D expression failed.", error);
+    });
+  }
+
+  function scheduleRandomExpression() {
+    window.clearTimeout(state.expressionTimerId);
+    state.expressionTimerId = window.setTimeout(() => {
+      applyRandomExpression();
+      scheduleRandomExpression();
+    }, 6000 + Math.random() * 10000);
+  }
+
   window.addEventListener(
     "pointermove",
     (event) => {
@@ -98,6 +121,8 @@
       app.stage.addChild(model);
       updatePlacement();
       scheduleResetFocus();
+      applyRandomExpression();
+      scheduleRandomExpression();
       mount.classList.add("is-ready");
       mount.dataset.live2dState = "ready";
     })

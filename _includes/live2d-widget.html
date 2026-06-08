@@ -2,7 +2,7 @@
   id="live2d-assistant"
   data-turbo-permanent
   style="z-index: 160;"
-  data-model="{{ site.live2d.model | relative_url }}"
+  data-model="{{ site.live2d.model | relative_url }}?v=20260609-expressions"
   data-desktop-left="{{ site.live2d.desktop_left_rem | default: 0.35 }}"
   data-desktop-bottom="{{ site.live2d.desktop_bottom_rem | default: 0.4 }}"
   data-desktop-width="{{ site.live2d.desktop_width | default: 250 }}"
@@ -19,4 +19,4 @@
 <script src="{{ site.live2d.cubism_core | relative_url }}" data-turbo-eval="false"></script>
 <script src="https://cdn.jsdelivr.net/npm/pixi.js@6.5.10/dist/browser/pixi.min.js" data-turbo-eval="false"></script>
 <script src="https://cdn.jsdelivr.net/npm/pixi-live2d-display@0.4.0/dist/cubism4.min.js" data-turbo-eval="false"></script>
-<script src="{{ '/assets/js/live2d-widget.js' | relative_url }}?v=20260609-live2d-persist" data-turbo-eval="false"></script>
+<script src="{{ '/assets/js/live2d-widget.js' | relative_url }}?v=20260609-live2d-expressions" data-turbo-eval="false"></script>
