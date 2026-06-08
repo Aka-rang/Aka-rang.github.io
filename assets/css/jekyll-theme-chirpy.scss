@@ -204,7 +204,7 @@ html[data-mode='dark'] blockquote {
   bottom: 0.4rem;
   width: 250px;
   height: 310px;
-  z-index: 25;
+  z-index: 80;
   pointer-events: none;
   user-select: none;
   overflow: hidden;
@@ -248,7 +248,7 @@ html[data-mode='dark'] blockquote {
     bottom: 0.15rem;
     width: 150px;
     height: 192px;
-    z-index: 20;
+    z-index: 80;
     opacity: 0.92;
   }
 }

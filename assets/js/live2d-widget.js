@@ -1,9 +1,15 @@
 (function () {
   const mount = document.getElementById("live2d-assistant");
 
+  if (mount && (mount.dataset.live2dState === "loading" || mount.dataset.live2dState === "ready")) {
+    return;
+  }
+
   if (!mount || typeof window.PIXI === "undefined" || !window.PIXI.live2d) {
     return;
   }
+
+  mount.dataset.live2dState = "loading";
 
   const modelUrl = mount.dataset.model;
   const desktopLeft = Number.parseFloat(mount.dataset.desktopLeft || "0.35");
@@ -93,9 +99,11 @@
       updatePlacement();
       scheduleResetFocus();
       mount.classList.add("is-ready");
+      mount.dataset.live2dState = "ready";
     })
     .catch((error) => {
       console.error("Live2D widget failed to load.", error);
+      delete mount.dataset.live2dState;
       mount.remove();
     });
 })();
