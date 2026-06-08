@@ -113,6 +113,13 @@ html[data-mode='dark'] #sidebar {
   background: linear-gradient(180deg, #040608 0%, #060b10 55%, #040608 100%);
 }
 
+@media (min-width: 992px) {
+  html[data-mode='dark'] #sidebar {
+    overflow: visible;
+    z-index: 60;
+  }
+}
+
 html[data-mode='dark'] #sidebar #avatar {
   box-shadow: rgba(83, 243, 195, 0.75) 0 0 0 2px, rgba(83, 243, 195, 0.12) 0 0 0 8px;
 }
@@ -131,10 +138,11 @@ html[data-mode='dark'] #sidebar nav.flex-column {
   top: 50%;
   right: 1rem;
   left: auto !important;
-  width: min(18rem, calc(100vw - 2rem)) !important;
+  width: 18rem !important;
   max-width: calc(100vw - 2rem);
   transform: translateY(-50%);
   z-index: 45;
+  pointer-events: auto;
 }
 
 html[data-mode='dark'] #sidebar nav.flex-column > .nav {
@@ -156,6 +164,8 @@ html[data-mode='dark'] #sidebar nav .nav-link {
   border: 1px solid rgba(83, 243, 195, 0.08);
   border-radius: 1rem;
   margin-bottom: 0.7rem;
+  position: relative;
+  z-index: 1;
 }
 
 html[data-mode='dark'] #topbar-wrapper,
