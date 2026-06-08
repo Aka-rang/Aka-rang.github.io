@@ -3,6 +3,11 @@ title: "[CTF] Challenge Name"
 date: 2026-06-09 00:00:00 +0900
 categories: [ctf, web]
 tags: [writeup, web, exploit]
+ctf_event: "Example CTF 2026"
+challenge: "Challenge Name"
+challenge_category: web
+difficulty: easy
+points: 100
 toc: true
 comments: false
 ---
@@ -10,8 +15,10 @@ comments: false
 ## TL;DR
 
 - 대회:
+- 문제:
 - 분야:
 - 난이도:
+- 점수:
 - 핵심 아이디어:
 - 최종 플래그:
 
