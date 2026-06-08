@@ -33,6 +33,45 @@
       z-index: 1;
     }
 
+    html[data-mode='dark'] body.post-page #sidebar nav.flex-column {
+      right: 0.45rem;
+      width: 3rem !important;
+      max-width: 3rem;
+    }
+
+    html[data-mode='dark'] body.post-page #sidebar nav .nav-link {
+      align-items: center;
+      border-left-width: 1px;
+      height: 2.85rem;
+      justify-content: center;
+      margin-left: auto;
+      padding-left: 0;
+      padding-right: 0;
+      width: 2.85rem;
+    }
+
+    html[data-mode='dark'] body.post-page #sidebar nav .nav-link span {
+      border: 0;
+      clip: rect(0, 0, 0, 0);
+      height: 1px;
+      margin: -1px;
+      overflow: hidden;
+      padding: 0;
+      position: absolute;
+      white-space: nowrap;
+      width: 1px;
+    }
+
+    html[data-mode='dark'] body.post-page #sidebar nav .nav-link i {
+      margin: 0;
+    }
+
+    html[data-mode='dark'] body.post-page #toc-wrapper {
+      max-height: calc(100vh - 1.5rem);
+      overflow-y: auto;
+      z-index: 40;
+    }
+
     #live2d-assistant {
       z-index: 160 !important;
     }

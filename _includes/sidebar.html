@@ -17,21 +17,22 @@
 
   <nav class="flex-column flex-grow-1 w-100 ps-0">
     <ul class="nav">
+      {% assign home_label = site.data.locales[include.lang].tabs.home | upcase %}
       <li class="nav-item{% if page.layout == 'home' %}{{ " active" }}{% endif %}">
-        <a href="{{ '/' | relative_url }}" class="nav-link">
+        <a href="{{ '/' | relative_url }}" class="nav-link" aria-label="{{ home_label }}" title="{{ home_label }}">
           <i class="fa-fw fas fa-home"></i>
-          <span>{{ site.data.locales[include.lang].tabs.home | upcase }}</span>
+          <span>{{ home_label }}</span>
         </a>
       </li>
 
       {% for tab in site.tabs %}
+        {% capture tab_name %}{{ tab.url | split: '/' }}{% endcapture %}
+        {% assign locale_tab_name = site.data.locales[include.lang].tabs.[tab_name] %}
+        {% assign tab_label = tab.nav_label | default: tab.title | default: locale_tab_name | upcase %}
         <li class="nav-item{% if tab.url == page.url %}{{ " active" }}{% endif %}">
-          <a href="{{ tab.url | relative_url }}" class="nav-link">
+          <a href="{{ tab.url | relative_url }}" class="nav-link" aria-label="{{ tab_label }}" title="{{ tab_label }}">
             <i class="fa-fw {{ tab.icon }}"></i>
-            {% capture tab_name %}{{ tab.url | split: '/' }}{% endcapture %}
-            {% assign locale_tab_name = site.data.locales[include.lang].tabs.[tab_name] %}
-            {% assign tab_label = tab.nav_label | default: tab.title | default: locale_tab_name %}
-            <span>{{ tab_label | upcase }}</span>
+            <span>{{ tab_label }}</span>
           </a>
         </li>
       {% endfor %}
