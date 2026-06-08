@@ -116,7 +116,7 @@ html[data-mode='dark'] #sidebar {
 @media (min-width: 992px) {
   html[data-mode='dark'] #sidebar {
     overflow: visible;
-    z-index: 60;
+    z-index: 120;
   }
 }
 
@@ -141,7 +141,7 @@ html[data-mode='dark'] #sidebar nav.flex-column {
   width: 18rem !important;
   max-width: calc(100vw - 2rem);
   transform: translateY(-50%);
-  z-index: 45;
+  z-index: 130;
   pointer-events: auto;
 }
 
@@ -218,7 +218,7 @@ html[data-mode='dark'] blockquote {
   bottom: 0.4rem;
   width: 250px;
   height: 310px;
-  z-index: 80;
+  z-index: 160;
   pointer-events: none;
   user-select: none;
   overflow: hidden;
@@ -262,7 +262,7 @@ html[data-mode='dark'] blockquote {
     bottom: 0.15rem;
     width: 150px;
     height: 192px;
-    z-index: 80;
+    z-index: 160;
     opacity: 0.92;
   }
 }

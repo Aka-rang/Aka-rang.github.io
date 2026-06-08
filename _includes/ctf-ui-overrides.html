@@ -1,0 +1,40 @@
+<style>
+  @media (min-width: 992px) {
+    html[data-mode='dark'] #sidebar {
+      overflow: visible;
+      z-index: 120;
+    }
+
+    html[data-mode='dark'] #sidebar nav.flex-column {
+      position: fixed;
+      top: 50%;
+      right: 1rem;
+      left: auto !important;
+      width: 18rem !important;
+      max-width: calc(100vw - 2rem);
+      transform: translateY(-50%);
+      z-index: 130;
+      pointer-events: auto;
+    }
+
+    html[data-mode='dark'] #sidebar nav .nav-link {
+      width: 100%;
+      padding-left: 1.1rem;
+      padding-right: 1.1rem;
+      justify-content: flex-start;
+      background: rgba(4, 6, 8, 0.78);
+      border: 1px solid rgba(83, 243, 195, 0.1);
+      border-left: 3px solid transparent;
+      border-radius: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.7rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    #live2d-assistant {
+      z-index: 160 !important;
+    }
+  }
+</style>
