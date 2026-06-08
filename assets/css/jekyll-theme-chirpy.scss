@@ -182,6 +182,12 @@ html[data-mode='dark'] #sidebar nav .nav-link {
   html[data-mode='dark'] body.post-page #panel-wrapper .toc-border-cover {
     display: none !important;
   }
+
+  html[data-mode='dark'] body.post-page #toc-wrapper::before,
+  html[data-mode='dark'] body.post-page #toc-wrapper::after {
+    content: none !important;
+    display: none !important;
+  }
 }
 
 html[data-mode='dark'] #sidebar nav .nav-link i {
