@@ -3,7 +3,7 @@ title: "[Hypersonic CTF] winprob1 Writeup"
 date: 2026-06-09 00:00:00 +0900
 categories: [ctf, windows]
 tags: [writeup, windows, lpe, privilege-escalation, service-hijacking]
-ctf_event: "Hypersonic CTF"
+ctf_event: "Hypersonic CTF (2026.06.07)"
 challenge: "winprob1"
 challenge_category: windows
 toc: true
