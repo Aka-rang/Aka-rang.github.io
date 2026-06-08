@@ -23,35 +23,22 @@ CTF 풀이를 대회와 문제 단위로 정리합니다.
         <span class="writeup-tree-count">{{ event.items.size }}</span>
       </summary>
 
-      {% assign challenge_groups = event.items | group_by_exp: "post", "post.challenge | default: 'Unsorted Challenge'" | sort: "name" %}
-      <div class="writeup-tree-children">
-        {% for challenge in challenge_groups %}
-          <details class="writeup-tree-challenge">
-            <summary>
-              <span class="writeup-tree-icon"><i class="fas fa-cube"></i></span>
-              <span class="writeup-tree-name">{{ challenge.name }}</span>
-              <span class="writeup-tree-count">{{ challenge.items.size }}</span>
-            </summary>
-
-            <ul class="writeup-tree-leaves">
-              {% assign challenge_posts = challenge.items | sort: "date" | reverse %}
-              {% for post in challenge_posts %}
-                <li>
-                  <a href="{{ post.url | relative_url }}" class="writeup-tree-link">
-                    <span>
-                      <span class="writeup-tree-title">{{ post.title }}</span>
-                      {% if post.challenge_category %}
-                        <span class="writeup-tree-meta">{{ post.challenge_category }}</span>
-                      {% endif %}
-                    </span>
-                    <time datetime="{{ post.date | date_to_xmlschema }}">{{ post.date | date: "%Y.%m.%d" }}</time>
-                  </a>
-                </li>
-              {% endfor %}
-            </ul>
-          </details>
+      <ul class="writeup-tree-leaves">
+        {% assign event_posts = event.items | sort: "date" | reverse %}
+        {% for post in event_posts %}
+          <li>
+            <a href="{{ post.url | relative_url }}" class="writeup-tree-link">
+              <span>
+                <span class="writeup-tree-title">{{ post.title }}</span>
+                {% if post.challenge_category %}
+                  <span class="writeup-tree-meta">{{ post.challenge_category }}</span>
+                {% endif %}
+              </span>
+              <time datetime="{{ post.date | date_to_xmlschema }}">{{ post.date | date: "%Y.%m.%d" }}</time>
+            </a>
+          </li>
         {% endfor %}
-      </div>
+      </ul>
     </details>
   {% endfor %}
 </div>
