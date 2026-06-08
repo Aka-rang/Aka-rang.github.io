@@ -7,25 +7,7 @@
       "textures/texture_01.png"
     ],
     "Physics": "model.physics3.json",
-    "DisplayInfo": "model.cdi3.json",
-    "Expressions": [
-      {
-        "Name": "teardrop",
-        "File": "expressions/teardrop.exp3.json"
-      },
-      {
-        "Name": "tears",
-        "File": "expressions/tears.exp3.json"
-      },
-      {
-        "Name": "squinting-eyes",
-        "File": "expressions/squinting-eyes.exp3.json"
-      },
-      {
-        "Name": "smiling-eyes",
-        "File": "expressions/smiling-eyes.exp3.json"
-      }
-    ]
+    "DisplayInfo": "model.cdi3.json"
   },
   "Groups": [
     {
