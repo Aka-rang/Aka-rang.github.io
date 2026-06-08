@@ -160,12 +160,26 @@ html[data-mode='dark'] #sidebar nav .nav-link {
   padding-left: 1.1rem;
   padding-right: 1.1rem;
   justify-content: flex-start;
-  background: rgba(4, 6, 8, 0.72);
-  border: 1px solid rgba(83, 243, 195, 0.08);
-  border-radius: 1rem;
+  background: rgba(4, 6, 8, 0.78);
+  border: 1px solid rgba(83, 243, 195, 0.1);
+  border-left: 3px solid transparent;
+  border-radius: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
   margin-bottom: 0.7rem;
   position: relative;
   z-index: 1;
+}
+
+html[data-mode='dark'] #sidebar nav .nav-link i {
+  color: rgba(83, 243, 195, 0.72);
+}
+
+html[data-mode='dark'] #sidebar nav .nav-item.active .nav-link {
+  background: linear-gradient(90deg, rgba(83, 243, 195, 0.18), rgba(4, 6, 8, 0.82));
+  border-color: rgba(83, 243, 195, 0.22);
+  border-left-color: #53f3c3;
+  box-shadow: rgba(83, 243, 195, 0.08) 0 0 0 1px, rgba(0, 0, 0, 0.35) 0 10px 22px;
 }
 
 html[data-mode='dark'] #topbar-wrapper,

@@ -6,10 +6,10 @@ lang: ko
 timezone: Asia/Seoul
 
 title: Aka-rang
-tagline: Black notes for code, systems, and ideas
+tagline: CTF writeups, study logs, and security notes
 
 description: >-
-  차분한 블랙 톤 위에 개발, 디자인, 기록을 쌓아가는 개인 기술 블로그.
+  CTF 풀이, 보안 공부, 개발하면서 배운 내용을 정리하는 개인 기술 블로그.
 
 url: "https://aka-rang.github.io"
 baseurl: ""
