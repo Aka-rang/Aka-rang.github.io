@@ -116,7 +116,7 @@ html[data-mode='dark'] #sidebar {
 @media (min-width: 992px) {
   html[data-mode='dark'] #sidebar {
     overflow: visible;
-    z-index: 120;
+    z-index: auto;
   }
 }
 
@@ -134,14 +134,14 @@ html[data-mode='dark'] #sidebar .site-subtitle {
 }
 
 html[data-mode='dark'] #sidebar nav.flex-column {
-  position: static;
+  position: relative;
   top: auto;
   right: auto;
   left: auto !important;
   width: 100% !important;
   max-width: none;
   transform: none;
-  z-index: auto;
+  z-index: 180;
   margin-top: 1.45rem;
   pointer-events: auto;
 }
@@ -169,7 +169,7 @@ html[data-mode='dark'] #sidebar nav .nav-link {
   letter-spacing: 0.05em;
   margin-bottom: 0.7rem;
   position: relative;
-  z-index: 1;
+  z-index: 181;
 }
 
 @media (min-width: 992px) {
