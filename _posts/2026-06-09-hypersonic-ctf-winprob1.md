@@ -10,8 +10,6 @@ toc: true
 comments: false
 ---
 
-소속클럽 : 대전대학교 HACTOR
-
 ## Challenge
 
 ```text
