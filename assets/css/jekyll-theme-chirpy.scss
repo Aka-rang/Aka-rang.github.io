@@ -345,6 +345,69 @@ html[data-mode='dark'] blockquote {
   margin-left: 0.55rem;
 }
 
+.study-tree-levels,
+.study-tree-problems {
+  border-left: 1px solid rgba(83, 243, 195, 0.18);
+  margin-left: 1.15rem;
+  padding-left: 1.1rem;
+}
+
+.study-tree .study-tree-level > summary {
+  background: rgba(8, 12, 16, 0.72);
+  border-left-color: rgba(76, 201, 255, 0.58);
+}
+
+.study-tree .study-tree-level > summary::before {
+  color: #4cc9ff;
+}
+
+.study-tree .study-tree-level > summary .writeup-tree-icon {
+  color: rgba(76, 201, 255, 0.78);
+}
+
+.study-tree .study-tree-problem > summary {
+  background: rgba(10, 14, 18, 0.64);
+  border-left-color: rgba(159, 183, 178, 0.42);
+  min-height: 2.45rem;
+}
+
+.study-tree .study-tree-problem > summary .writeup-tree-name {
+  font-weight: 650;
+}
+
+.study-tree-solution-wrap {
+  border-left: 1px solid rgba(83, 243, 195, 0.18);
+  margin-left: 1.15rem;
+  padding: 0.55rem 0 0.15rem 1.1rem;
+}
+
+.study-tree-solution {
+  align-items: center;
+  background: rgba(8, 12, 16, 0.72);
+  border: 1px solid rgba(83, 243, 195, 0.08);
+  border-radius: 0.45rem;
+  color: var(--text-color);
+  display: flex;
+  gap: 0.75rem;
+  justify-content: space-between;
+  padding: 0.5rem 0.7rem;
+}
+
+.study-tree-solution i {
+  color: rgba(83, 243, 195, 0.78);
+  margin-right: 0.35rem;
+}
+
+.study-tree-solution time {
+  color: var(--text-muted-color);
+  font-size: 0.82rem;
+}
+
+.study-tree-solution:hover {
+  background: rgba(83, 243, 195, 0.09);
+  border-color: rgba(83, 243, 195, 0.22);
+}
+
 #live2d-assistant {
   position: fixed;
   left: 0.35rem;
@@ -397,5 +460,14 @@ html[data-mode='dark'] blockquote {
     height: 192px;
     z-index: 160;
     opacity: 0.92;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .study-tree-levels,
+  .study-tree-problems,
+  .study-tree-solution-wrap {
+    margin-left: 0.65rem;
+    padding-left: 0.65rem;
   }
 }

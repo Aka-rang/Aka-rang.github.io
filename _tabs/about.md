@@ -6,8 +6,6 @@ permalink: /about/
 nav_hidden: true
 ---
 
-# Aka-rang
-
 CTF writeup과 보안 공부 기록을 모아두는 개인 기술 블로그입니다.
 
 주로 이런 내용을 정리합니다.

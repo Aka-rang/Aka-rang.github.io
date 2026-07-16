@@ -5,8 +5,6 @@ order: 1
 permalink: /writeups/
 ---
 
-# Writeups
-
 CTF 풀이를 대회와 문제 단위로 정리합니다.
 
 {% assign writeup_posts = site.posts | where_exp: "post", "post.categories contains 'ctf' or post.categories contains 'writeup' or post.ctf_event" %}
