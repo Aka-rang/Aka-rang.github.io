@@ -8,7 +8,7 @@ permalink: /study/
 # Study
 
 보안 공부, 개발 메모, 실습 기록을 모아두는 공간입니다.
-
+드림핵 워게임 롸업? 풀이방법?도 모아두는 공간 그냥 내가 어떻게 풀었는지 기록하는거라 자세한 롸업은 아니고 그냥 진짜 대충 적음
 {% assign study_posts = site.posts | where_exp: "post", "post.categories contains 'study' or post.categories contains 'notes'" %}
 
 {% if study_posts.size > 0 %}
