@@ -57,7 +57,6 @@ layout: compress
           </div>
         </div>
 
-        {% include_cached search-results.html lang=lang %}
       </div>
 
       <aside aria-label="Scroll to Top">
@@ -83,6 +82,5 @@ layout: compress
     {% unless site.pwa.enabled %}
       <script src="{{ '/assets/js/pwa-cache-reset.js' | relative_url }}?v=20260609-disable-pwa" data-turbo-eval="false"></script>
     {% endunless %}
-    {% include_cached search-loader.html lang=lang %}
   </body>
 </html>

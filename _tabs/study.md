@@ -15,6 +15,19 @@ permalink: /study/
 {% assign study_groups = study_posts | group_by_exp: "post", "post.study_collection | default: '기타 공부 기록'" | sort: "name" %}
 
 <div class="writeup-tree study-tree">
+  {% assign hskf_posts = study_posts | where: "study_collection", "HSKF 3기" %}
+  {% if hskf_posts.size == 0 %}
+    <details class="study-tree-root">
+      <summary>
+        <span class="writeup-tree-icon"><i class="fas fa-folder-open"></i></span>
+        <span class="writeup-tree-name">HSKF 3기</span>
+        <span class="writeup-tree-count">0</span>
+      </summary>
+      <div class="study-tree-levels">
+        <p class="study-tree-empty">아직 작성된 글이 없습니다.</p>
+      </div>
+    </details>
+  {% endif %}
   {% for study_group in study_groups %}
     <details class="study-tree-root">
       <summary>

@@ -202,10 +202,23 @@ html[data-mode='dark'] #sidebar nav .nav-item.active .nav-link {
 }
 
 html[data-mode='dark'] #topbar-wrapper,
-html[data-mode='dark'] #search-results > article,
 html[data-mode='dark'] .card,
 html[data-mode='dark'] .post-preview {
   backdrop-filter: blur(18px);
+}
+
+html[data-mode='dark'] #topbar-wrapper {
+  background: var(--main-bg);
+}
+
+#main-wrapper main,
+#panel-wrapper,
+#tail-wrapper {
+  min-width: 0;
+}
+
+#main-wrapper main .content {
+  overflow-wrap: anywhere;
 }
 
 html[data-mode='dark'] a:hover {
@@ -234,6 +247,7 @@ html[data-mode='dark'] blockquote {
 .writeup-tree {
   margin-top: 1.5rem;
   max-width: 48rem;
+  width: 100%;
 }
 
 .writeup-tree details {
@@ -252,6 +266,7 @@ html[data-mode='dark'] blockquote {
   list-style: none;
   min-height: 2.65rem;
   padding: 0.55rem 0.75rem;
+  min-width: 0;
 }
 
 .writeup-tree summary::-webkit-details-marker {
@@ -278,6 +293,8 @@ html[data-mode='dark'] blockquote {
   color: var(--heading-color);
   flex: 1;
   font-weight: 700;
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .writeup-tree-count,
@@ -293,6 +310,7 @@ html[data-mode='dark'] blockquote {
   min-width: 1.8rem;
   padding: 0.05rem 0.45rem;
   text-align: center;
+  flex-shrink: 0;
 }
 
 .writeup-tree-leaves {
@@ -329,6 +347,12 @@ html[data-mode='dark'] blockquote {
   gap: 0.75rem;
   justify-content: space-between;
   padding: 0.5rem 0.7rem;
+  min-width: 0;
+}
+
+.writeup-tree-link > span {
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .writeup-tree-link:hover {
@@ -350,6 +374,12 @@ html[data-mode='dark'] blockquote {
   border-left: 1px solid rgba(83, 243, 195, 0.18);
   margin-left: 1.15rem;
   padding-left: 1.1rem;
+}
+
+.study-tree-empty {
+  color: var(--text-muted-color);
+  font-size: 0.9rem;
+  margin: 0.75rem 0 1rem;
 }
 
 .study-tree .study-tree-level > summary {
@@ -391,6 +421,12 @@ html[data-mode='dark'] blockquote {
   gap: 0.75rem;
   justify-content: space-between;
   padding: 0.5rem 0.7rem;
+  min-width: 0;
+}
+
+.study-tree-solution > span {
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .study-tree-solution i {
@@ -464,10 +500,30 @@ html[data-mode='dark'] blockquote {
 }
 
 @media (max-width: 575.98px) {
+  #topbar-title {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .writeup-tree-leaves,
   .study-tree-levels,
   .study-tree-problems,
   .study-tree-solution-wrap {
     margin-left: 0.65rem;
     padding-left: 0.65rem;
+  }
+
+  .writeup-tree-link,
+  .study-tree-solution {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .writeup-tree-meta {
+    display: inline-block;
+    margin-left: 0;
   }
 }
