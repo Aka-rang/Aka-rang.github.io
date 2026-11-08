@@ -201,14 +201,22 @@ html[data-mode='dark'] #sidebar nav .nav-item.active .nav-link {
   box-shadow: rgba(83, 243, 195, 0.08) 0 0 0 1px, rgba(0, 0, 0, 0.35) 0 10px 22px;
 }
 
-html[data-mode='dark'] #topbar-wrapper,
 html[data-mode='dark'] .card,
 html[data-mode='dark'] .post-preview {
   backdrop-filter: blur(18px);
 }
 
 html[data-mode='dark'] #topbar-wrapper {
-  background: var(--main-bg);
+  background: transparent;
+  backdrop-filter: none;
+}
+
+html[data-mode='dark'] #topbar #breadcrumb a {
+  color: var(--text-muted-highlight-color);
+}
+
+html[data-mode='dark'] #topbar #breadcrumb a:hover {
+  color: var(--link-color);
 }
 
 #main-wrapper main,
