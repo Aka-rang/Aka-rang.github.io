@@ -60,7 +60,7 @@ permalink: /study/
 
                   <div class="study-tree-solution-wrap">
                     <a href="{{ post.url | relative_url }}" class="study-tree-solution">
-                      <span><i class="fas fa-file-alt"></i> 풀이 보기</span>
+                      <span><i class="fas fa-file-alt"></i> {{ post.study_link_label | default: '풀이 보기' }}</span>
                       <time datetime="{{ post.date | date_to_xmlschema }}">{{ post.date | date: "%Y.%m.%d" }}</time>
                     </a>
                   </div>
