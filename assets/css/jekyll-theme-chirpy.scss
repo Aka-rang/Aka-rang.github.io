@@ -505,6 +505,10 @@ html[data-mode='dark'] blockquote {
     z-index: 160;
     opacity: 0.92;
   }
+
+  body.reading-mode #live2d-assistant {
+    display: none;
+  }
 }
 
 @media (max-width: 575.98px) {
