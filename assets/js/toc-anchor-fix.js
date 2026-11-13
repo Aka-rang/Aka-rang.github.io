@@ -1,7 +1,7 @@
 (function () {
   "use strict";
 
-  var TOC_LINK_SELECTOR = "#toc a";
+  var TOC_LINK_SELECTOR = "#toc a, body.reading-mode #toc-popup a";
   var HEADING_SELECTOR = "main h2[id], main h3[id]";
 
   function samePageHash(link) {
@@ -123,6 +123,39 @@
     revealToc();
   }
 
+  function handleReadingToc(target) {
+    if (!document.body.classList.contains("reading-mode")) {
+      return false;
+    }
+
+    var popup = document.getElementById("toc-popup");
+    if (!popup) {
+      return false;
+    }
+
+    if (target.closest("#toc-popup-close")) {
+      popup.close();
+      return true;
+    }
+
+    if (!target.closest("#toc-solo-trigger, #toc-bar button")) {
+      return false;
+    }
+
+    prepareToc();
+    var toc = document.getElementById("toc");
+    var content = document.getElementById("toc-popup-content");
+    if (!toc || !content || !toc.firstElementChild) {
+      return false;
+    }
+
+    content.replaceChildren(toc.firstElementChild.cloneNode(true));
+    if (!popup.open) {
+      popup.showModal();
+    }
+    return true;
+  }
+
   function scrollToHash(hash) {
     var target = document.getElementById(decodeHash(hash));
 
@@ -158,8 +191,18 @@
     "click",
     function (event) {
       var target = event.target instanceof Element ? event.target : null;
+      if (target && handleReadingToc(target)) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        return;
+      }
+
       var link = target ? target.closest(TOC_LINK_SELECTOR) : null;
       var hash = link ? samePageHash(link) : "";
+
+      if (hash && link.closest("#toc-popup")) {
+        document.getElementById("toc-popup").close();
+      }
 
       if (!hash || !scrollToHash(hash)) {
         return;
