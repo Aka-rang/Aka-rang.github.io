@@ -1,7 +1,8 @@
 ---
 title: "[HSKF 3기] 같은 ZIP이 다르게 보일 때 — ZipDiff 논문 리뷰"
-description: "USENIX Security 2025의 ZipDiff 논문을 통해 ZIP 파서의 해석 차이, 차등 퍼징 방법론, 실험 결과와 보안 우회 사례를 살펴본다."
+description: "USENIX Security 2025 ZipDiff의 문제의식과 방법론을 살펴보고, C1의 두 가지 구성법을 무해한 텍스트로 재현해 검사와 사용의 해석 차이를 확인한다."
 date: 2026-11-12 00:00:00 +0900
+last_modified_at: 2026-11-14
 categories: [study, security]
 tags: [hskf, paper-review, zip, fuzzing, differential-testing, usenix-security]
 study_collection: "HSKF 3기"
@@ -47,6 +48,8 @@ ZIP이라는 익숙한 형식에서 출발하면서도 문서 처리, 서명 검
 | 기존 접근의 빈틈은 무엇인가 | 개별 구현의 크래시나 이미 알려진 우회 사례를 확인하는 것만으로는 여러 구현 사이의 해석 차이를 충분히 설명하기 어렵다. |
 
 이 리뷰에서는 **해석 차이가 존재하는가**, **그 차이를 자동으로 찾을 수 있는가**, **실제 제품에서 보안 문제가 되는가**를 차례로 확인한다. 세 질문의 답은 서로 연결되지만 같은 의미는 아니다. [1, 2]
+
+본문은 논문의 문제의식과 방법론, 저자들의 평가 결과, 두 방향의 로컬 실험, 이후 연구 계획 순서로 구성했다. 5절과 6절의 실험은 논문의 C1을 축소해 확인한 결과이며, 상용 제품의 서명 검증이나 백신을 대상으로 한 실험은 아니다.
 
 ## 1. 같은 파일이 같은 내용을 뜻하지 않는 이유
 
@@ -153,7 +156,7 @@ ZipDiff는 각 샘플에서 성공한 파서 집합과 서로 다른 결과를 �
 
 또한 초록의 ‘새로운 모호성 10개’라는 표현은 본문의 Table 2와 함께 읽을 필요가 있다. 그 수에는 완전히 새로운 유형뿐 아니라 **기존 유형의 새로운 변형과 구성 기법**도 포함된다. [2, §8.2, Table 2]
 
-## 3. 실험은 어디까지 보여 주었는가
+## 3. 논문의 평가 결과를 어떻게 읽을 것인가
 
 ### 실험 규모와 수치의 의미
 
@@ -188,7 +191,7 @@ ZipDiff는 각 샘플에서 성공한 파서 집합과 서로 다른 결과를 �
 
 Figure 4에는 시간에 따른 추이도 있으므로 최종값뿐 아니라 차이를 얼마나 빨리 찾았는지도 함께 읽어야 한다. 그래프의 세로축에는 단절이 있어 선의 시각적 간격만으로 배율을 추정하지 않는 편이 좋다.
 
-### 실제 보안 문제로 이어진 다섯 가지 사례
+## 4. 실제 제품에서는 어떤 신뢰 판단이 달라졌는가
 
 논문은 파서 차이의 존재를 확인한 뒤, 그 차이가 실제 제품의 신뢰 판단에 영향을 주는 사례를 제시한다. [2, §6]
 
@@ -226,251 +229,376 @@ LibreOffice의 공식 공지는 손상된 ZIP 중앙 디렉터리를 복구할 �
 
 CVE 번호가 2024로 시작해도 논문 게재 연도는 2025년이다. 연구 과정의 발견·신고·수정과 학회 발표 시점은 다를 수 있으므로, 이번 미션에서는 논문의 게재 연도를 확인하면 된다.
 
+이 가운데 Spring Boot 사례는 뒤의 로컬 실험과 직접 연결된다. 다만 검사와 사용의 방향을 구분해야 한다. 5절에서는 중앙 디렉터리 기반 파서를 검사 역할로 사용하고, 6절에서는 Spring Boot 사례처럼 스트리밍 파서를 검사 역할로 사용한다.
+
+## 5. 실험 A: 중앙 디렉터리를 읽는 검사기와 스트리밍 후단
+{: #5-추가-실험-python과-java가-같은-zip을-다르게-읽는-경우 }
+
+**검사기는 `safe.txt`만 읽고 통과시키지만, 뒷단은 검사에 보이지 않은 `marker.txt`까지 꺼낸다.** 이 상황을 무해한 텍스트로 확인하는 것이 첫 번째 실험의 목표다.
+
+논문 §5.2.3의 C1에는 여러 구성법이 있다. 여기서는 첫 번째 구성인 **LFH는 있지만 대응하는 CDH가 없는 경우**를 사용한다. Python의 `zipfile.ZipFile`에 검사 역할을, Java의 `ZipInputStream`에 후단 추출 역할을 맡긴다. [2, §5.2.3; 11]
+
+### 실험용 파일과 검사 규칙
+
+두 파일의 내용은 모두 ASCII 텍스트다.
+
+| 파일 | 내용 | 역할 |
+| --- | --- | --- |
+| `safe.txt` | `This is harmless classroom text.`와 줄바꿈 | 허용할 파일 |
+| `marker.txt` | `MARKER_BLOCK`과 안내 문장 | 모의 검사에서 차단할 파일 |
+
+검사 규칙은 다음과 같다.
+
+> 검사 역할의 파서가 읽은 파일 중 `MARKER_BLOCK` 바이트열을 포함한 파일이 있으면 `BLOCK`, 없으면 `PASS`로 판정한다. 파서 실행이 실패하면 `ERROR`로 기록하며 통과로 취급하지 않는다.
+
+`MARKER_BLOCK`은 파일이 검사 범위에 들어왔는지 확인하기 위한 표식이다. 위험한 기능이나 실행 코드는 없다. **후단에는 이 검사 규칙을 적용하지 않고, 어떤 파일이 추출됐는지만 기록한다.** 따라서 후단의 결과는 `PASS`나 `BLOCK`이 아니라 `marker.txt 추출됨`처럼 표현한다.
+
+### 실험 환경과 재현 파일
+
+아래 표와 로그는 표식을 `MARKER_BLOCK`으로 고정한 코드를 다음 환경에서 실행해 얻은 결과다.
+
+| 항목 | 검증 환경 |
+| --- | --- |
+| 운영체제 | Linux x86-64 |
+| Python | 3.12.14 |
+| Java | OpenJDK 21.0.13 |
+| ZIP 압축 방식 | `ZIP_STORED`, 실제 압축 없음 |
+| 입력 범위 | 고정된 텍스트 두 파일, ZIP32, 단일 디스크, 주석 없음 |
+| 읽기 완료 조건 | 각 엔트리의 내용을 끝까지 읽고 CRC를 확인한 뒤 실제 파일로 저장 |
+
+[실험 코드와 검증 기록 내려받기]({{ '/assets/files/zipdiff-review-v2/zipdiff_review_v2_lab.zip' | relative_url }})
+
+패키지에는 `make_fixtures.py`, `run_lab.py`, `ArchiveReader.java`, 한국어 실행 설명서와 `observed_run` 검증 기록이 들어 있다. Ubuntu에서는 Python 3와 JDK 21을 준비한 뒤 압축을 풀고 실행한다.
+
+```bash
+sudo apt update
+sudo apt install -y python3 openjdk-21-jdk-headless unzip
+unzip zipdiff_review_v2_lab.zip
+cd zipdiff_review_v2
+python3 run_lab.py
+```
+
+Windows에서 Python과 JDK 21이 이미 설치돼 있다면 같은 폴더에서 `py -3 run_lab.py`로 실행할 수 있다. 실제 사용한 버전은 `python3 --version` 또는 `py -3 --version`, `java -version`으로 기록한다. 여기의 결과표는 위 Linux 환경에서 확인한 값이다.
+
+### ZIP 생성 코드
+
+다음은 실험 A와 실험 B에 사용하는 ZIP 생성 코드 전체다. 파일 내용과 날짜를 고정해 입력을 다시 생성할 수 있도록 했다. 정상 ZIP 두 개를 만든 뒤, 동일한 정상 대조군에서 두 가지 변형을 각각 생성한다.
+
+`make_fixtures.py`로 저장하고 `python3 make_fixtures.py`를 실행하면 `fixtures` 폴더가 생긴다. 이 폴더가 이미 있으면 덮어쓰지 않는다. 다른 경로는 `python3 make_fixtures.py fixtures-second`처럼 지정한다. 전체 실험을 실행하는 `run_lab.py`는 매번 새로운 실행 폴더를 만든다.
+
+```python
+"""Generate four fixed, harmless text fixtures for a ZIP parser comparison."""
+
+import io
+import struct
+import sys
+import zipfile
+from pathlib import Path
+
+MARKER = b"MARKER_BLOCK"
+SAFE = b"This is harmless classroom text.\n"
+MARKED = b"MARKER_BLOCK\nThis is harmless marker text.\n"
+GAP = b"LFH_STREAM_STOP".ljust(32, b"_")
+
+
+def ordinary_zip(with_marker):
+    buffer = io.BytesIO()
+    entries = [("safe.txt", SAFE)]
+    if with_marker:
+        entries.append(("marker.txt", MARKED))
+    with zipfile.ZipFile(buffer, "w", compression=zipfile.ZIP_STORED) as archive:
+        for name, data in entries:
+            info = zipfile.ZipInfo(name, date_time=(2025, 1, 1, 0, 0, 0))
+            info.compress_type = zipfile.ZIP_STORED
+            info.create_system = 3
+            info.external_attr = 0o100644 << 16
+            archive.writestr(info, data)
+    return buffer.getvalue()
+
+
+def directory_records(raw):
+    # This helper accepts only the small ZIP32 fixture created above.
+    eocd = len(raw) - 22
+    fields = struct.unpack_from("<4s4H2IH", raw, eocd)
+    sig, disk, cd_disk, n_disk, n_total, cd_size, cd_start, comment = fields
+    if (sig, disk, cd_disk, n_disk, n_total, comment) != (
+        b"PK\x05\x06", 0, 0, 2, 2, 0
+    ) or cd_start + cd_size != eocd:
+        raise ValueError("Unexpected fixed fixture")
+    records = []
+    cursor = cd_start
+    while cursor < eocd:
+        if raw[cursor:cursor + 4] != b"PK\x01\x02":
+            raise ValueError("CDH signature missing")
+        n, x, c = struct.unpack_from("<HHH", raw, cursor + 28)
+        length = 46 + n + x + c
+        name = raw[cursor + 46:cursor + 46 + n].decode("ascii")
+        record = raw[cursor:cursor + length]
+        records.append((name, record))
+        cursor += length
+    if cursor != eocd or [name for name, _ in records] != ["safe.txt", "marker.txt"]:
+        raise ValueError("Unexpected central directory entries")
+    return cd_start, raw[eocd:], records
+
+
+def remove_marker_cdh(raw):
+    """C1 construction 1: leave marker LFH/data, remove its CDH."""
+    cd_start, footer, records = directory_records(raw)
+    directory = b"".join(record for name, record in records if name == "safe.txt")
+    footer = bytearray(footer)
+    struct.pack_into("<H", footer, 8, 1)               # entries on this disk
+    struct.pack_into("<H", footer, 10, 1)              # total entries
+    struct.pack_into("<I", footer, 12, len(directory)) # central directory size
+    # EOCD +16 remains unchanged: the local-data area did not move.
+    return raw[:cd_start] + directory + footer
+
+
+def interrupt_lfh_stream(raw):
+    """C1 construction 2: insert non-LFH bytes before marker's LFH."""
+    cd_start, footer, records = directory_records(raw)
+    marker_record = next(record for name, record in records if name == "marker.txt")
+    insertion = struct.unpack_from("<I", marker_record, 42)[0]
+    if raw[insertion:insertion + 4] != b"PK\x03\x04":
+        raise ValueError("marker LFH not found")
+    directory = bytearray()
+    for _, record in records:
+        record = bytearray(record)
+        local_offset = struct.unpack_from("<I", record, 42)[0]
+        if local_offset >= insertion:
+            struct.pack_into("<I", record, 42, local_offset + len(GAP))
+        directory.extend(record)
+    footer = bytearray(footer)
+    struct.pack_into("<I", footer, 16, cd_start + len(GAP))
+    # Counts (+8/+10) and directory size (+12) remain unchanged.
+    return raw[:insertion] + GAP + raw[insertion:cd_start] + directory + footer
+
+
+def make_fixtures(destination):
+    destination = Path(destination)
+    destination.mkdir(parents=True, exist_ok=False)
+    normal = ordinary_zip(True)
+    fixtures = {
+        "safe_control": ordinary_zip(False),
+        "normal_marker_control": normal,
+        "c1_missing_cdh": remove_marker_cdh(normal),
+        "c1_interrupted_stream": interrupt_lfh_stream(normal),
+    }
+    for name, data in fixtures.items():
+        (destination / (name + ".zip")).write_bytes(data)
+    return fixtures
+
+
+if __name__ == "__main__":
+    destination = Path(sys.argv[1]) if len(sys.argv) == 2 else Path("fixtures")
+    for name, data in make_fixtures(destination).items():
+        print(name + ".zip", len(data), "bytes")
+```
+
+이 코드는 자신이 생성한 작은 실험 파일의 구조를 전제로 한다. ZIP64, 분할 ZIP, 임의의 주석과 확장 필드 등을 처리하는 일반 ZIP 편집기는 아니다.
+
+### 실험 A에서 실제로 바꾼 필드
+
+`remove_marker_cdh()`는 `marker.txt`의 **중앙 디렉터리 항목 전체**를 제거한다. 파일 수 필드만 줄이는 방식이 아니다. `marker.txt`의 LFH와 데이터는 원래 위치에 남겨 둔다.
+
+오프셋은 해당 구조의 시작점을 0으로 한 바이트 위치다. 다중 바이트 정수는 little-endian으로 기록한다. 필드 정의는 PKWARE APPNOTE §§4.3.12, 4.3.16을 따른다. [3]
+
+| 수정 대상 | 오프셋과 크기 | 정상 대조군 | 실험 A |
+| --- | --- | ---: | ---: |
+| EOCD의 현재 디스크 엔트리 수 | `+8`, 2바이트 | 2 | 1 |
+| EOCD의 전체 엔트리 수 | `+10`, 2바이트 | 2 | 1 |
+| EOCD의 중앙 디렉터리 크기 | `+12`, 4바이트 | 110 | 54 |
+| EOCD의 중앙 디렉터리 시작 위치 | `+16`, 4바이트 | 154 | 154, 유지 |
+| `marker.txt`의 CDH | 해당 항목 전체 | 56바이트 | 제거 |
+| 두 파일의 LFH와 데이터 | 중앙 디렉터리 앞부분 | 존재 | 그대로 유지 |
+
+중앙 디렉터리 앞의 바이트는 바꾸지 않았으므로 중앙 디렉터리 시작 위치는 유지된다. 반면 중앙 디렉터리가 짧아졌기 때문에 새 EOCD 자체의 파일 내 위치는 264에서 208로 이동한다. **EOCD의 위치와 EOCD에 기록된 중앙 디렉터리 위치는 다른 값**이다.
+
+생성된 `c1_missing_cdh.zip`에는 다음과 같은 차이가 생긴다.
+
+| 관찰할 구조 | 들어 있는 파일 |
+| --- | --- |
+| LFH와 파일 데이터 | `safe.txt`, `marker.txt` |
+| 중앙 디렉터리 | `safe.txt` |
+
+PKWARE APPNOTE §4.3.2는 각 LFH에 대응하는 CDH가 있어야 한다고 규정한다. 실험 A는 이 조건을 의도적으로 어긴 입력이다. 파서가 성공했다고 해서 입력이 ZIP 명세를 만족한다는 뜻은 아니다. [3]
+
+### 대조군과 실제 결과
+
+검사 규칙이 제대로 작동하는지 확인하기 위해 두 정상 ZIP을 대조군으로 사용했다. 파서 자체의 결과를 비교하려고 **검사 판정과 무관하게 후단도 별도로 실행**했다. 따라서 아래의 정상 표시 파일 행은 차단된 파일을 실제 서비스에 넘겼다는 뜻이 아니라, 그 ZIP을 후단만 단독 실행했을 때의 관측값이다.
+
+| 입력 | Python 검사기가 읽은 파일 | 검사 판정 | Java 후단 단독 실행 결과 |
+| --- | --- | --- | --- |
+| `safe_control.zip` | `safe.txt` | `PASS` | `safe.txt` 추출됨 |
+| `normal_marker_control.zip` | `safe.txt`, `marker.txt` | `BLOCK` | 두 파일 추출됨 |
+| `c1_missing_cdh.zip` | `safe.txt` | **`PASS`** | **`marker.txt`를 포함한 두 파일 추출됨** |
+
+정상 표시 파일 대조군에서 Python은 `MARKER_BLOCK`을 찾아 차단했다. 검사 규칙은 동작한다. 변형 ZIP에서는 중앙 디렉터리에 `marker.txt`가 없어서 파일 자체가 검사 범위에서 빠졌다.
+
+**Python은 `PASS`를 줬는데, Java는 검사받지 않은 `marker.txt`를 꺼냈다.** 여기서 Java가 공격을 탐지한 것은 아니다. 후단은 자신이 읽을 수 있는 엔트리를 추출했을 뿐이다.
+
+실행 로그에서 실험 A에 해당하는 부분을 발췌하면 다음과 같다.
+
+```text
+[c1_missing_cdh]
+  input_same_and_unchanged=True
+  python-central: exit=0 entries=['safe.txt']
+  java-zip-stream: exit=0 entries=['safe.txt', 'marker.txt']
+  A_central_to_stream: scanner=PASS consumer_marker_extracted=True trees_equal=False marker_reachable_after_pass=True
+```
+
+`marker_reachable_after_pass=True`는 검사 결과가 `PASS`이고 후단의 별도 추출 결과에 표시 파일이 있다는 뜻이다. 실제 네트워크 서비스나 운영체제 실행 여부를 나타내는 값은 아니다.
+
+### 입력 해시와 추출 결과 해시
+
+각 파서가 읽은 입력의 SHA-256과 실행 전후 입력 파일의 해시를 함께 기록했다. Python과 스트리밍 Java API는 해시를 계산한 바이트 배열을 그대로 파싱했다. 파일 경로를 요구하는 Java `ZipFile`은 같은 바이트로 만든 전용 임시 복사본을 읽고, 처리 후에도 복사본이 같은지 확인했다.
+
+출력은 파일별 상대 경로, 크기, 내용의 SHA-256을 경로순으로 정렬한 JSON으로 표현하고, 그 JSON의 SHA-256을 계산했다. 이 실험의 파일은 평면 디렉터리의 일반 텍스트 파일뿐이며, 이 방식이 임의의 ZIP을 위한 완전한 정규화 규칙이라는 뜻은 아니다.
+
+| 비교 대상 | 실험 A의 결과 | 의미 |
+| --- | --- | --- |
+| 두 파서가 받은 동일 ZIP의 해시 | 같음 | 입력 바이트가 같음 |
+| 파서 실행 전후 입력 ZIP의 해시 | 같음 | 실험 도중 입력이 바뀌지 않음 |
+| 실제 추출한 파일 트리의 해시 | 다름 | 만들어진 파일 집합이 다름 |
+
+정상 대조군과 변형 ZIP은 서로 다른 파일이므로 둘의 ZIP 해시도 다르다. 확인한 것은 **하나의 변형 ZIP을 두 파서에 동일하게 전달해도 추출 결과가 달라진다**는 점이다.
+
+두 프로그램은 모두 종료 코드 0으로 완료됐고 표준 오류 출력도 없었다. 이 실험은 두 파서가 성공하면서 최종 추출 결과가 다른 경우를 직접 보여 준다.
+
+## 6. 실험 B: Spring Boot 사례와 같은 방향으로 역할 바꾸기
+
+### Spring Boot 사례는 검사와 사용의 방향이 반대다
+
+논문 §6.4의 Spring Boot 사례에서는 `NestedJarFile`이 서명 확인에 Java의 `JarInputStream`을 사용하고, 실제 내용 읽기에 Spring Boot의 `ZipContent`를 사용한다. 전자는 스트리밍 방식이고 후자는 중앙 디렉터리 기반 방식이다. [2, §6.4]
+
+| 구분 | 검사 또는 검증 역할 | 후단의 내용 읽기 |
+| --- | --- | --- |
+| 실험 A | Python `zipfile.ZipFile`, 중앙 디렉터리 | Java `ZipInputStream`, 스트리밍 |
+| 논문 속 Spring Boot 사례 | Java `JarInputStream`, 스트리밍 서명 확인 | Spring Boot `ZipContent`, 중앙 디렉터리 |
+| 실험 B | Java `JarInputStream`이 읽은 내용에 표시 문자열 검사 | JDK `ZipFile`, 중앙 디렉터리 |
+
+따라서 실험 A만으로 Spring Boot 사례와 같은 검사·사용 방향을 확인했다고 쓰면 정확하지 않다. 방향을 바꾸려면 스트리밍 검사기가 뒤쪽 파일을 발견하지 못하고, 중앙 디렉터리 기반 후단은 그 파일을 찾는 입력이 필요하다.
+
+실험 B에서는 논문의 C1 두 번째 구성인 **LFH 스트림 끊기**를 사용한다. 여기서 끊는 것은 연속된 로컬 항목을 읽는 흐름이다. ZIP 파일 자체의 뒷부분을 잘라내는 것은 아니다. [2, §5.2.3]
+
+### LFH 사이에 32바이트를 넣기
+
+앞에서 공개한 `interrupt_lfh_stream()`은 정상 대조군의 `safe.txt` 데이터가 끝난 뒤, `marker.txt` LFH가 시작하기 전에 32바이트를 넣는다. 삽입한 값은 `LFH_STREAM_STOP` 뒤를 밑줄로 채운 ASCII 바이트열이다. 이 문자열에 특별한 명령 의미는 없으며, LFH 시그니처로 시작하지 않는다는 점만 이용한다.
+
+실험에 사용한 스트리밍 API는 첫 파일을 읽은 뒤 이 위치에서 다음 LFH를 찾지 못하고 엔트리 열거를 끝냈다. 중앙 디렉터리 기반 파서는 목록에 기록된 위치를 따라 뒤쪽 `marker.txt`에 접근했다.
+
+| 파일 내 순서 | 내용 |
+| --- | --- |
+| 1 | `safe.txt`의 LFH와 데이터 |
+| 2 | LFH로 해석되지 않는 32바이트 |
+| 3 | `marker.txt`의 LFH와 데이터 |
+| 4 | 두 파일을 모두 가리키는 중앙 디렉터리 |
+| 5 | 실제 중앙 디렉터리 위치가 기록된 EOCD |
+
+삽입 지점 뒤쪽의 구조가 32바이트씩 이동하므로 참조하는 위치도 수정해야 한다. 단순히 중간에 바이트만 넣으면 중앙 디렉터리가 잘못된 위치를 가리킬 수 있다.
+
+| 수정 대상 | 오프셋과 크기 | 정상 대조군 | 실험 B |
+| --- | --- | ---: | ---: |
+| `marker.txt` CDH의 LFH 상대 위치 | CDH `+42`, 4바이트 | 71 | 103 |
+| EOCD의 중앙 디렉터리 시작 위치 | EOCD `+16`, 4바이트 | 154 | 186 |
+| `safe.txt` CDH의 LFH 상대 위치 | CDH `+42`, 4바이트 | 0 | 0, 유지 |
+| EOCD의 두 엔트리 수 필드 | EOCD `+8`, `+10` | 각각 2 | 각각 2, 유지 |
+| EOCD의 중앙 디렉터리 크기 | EOCD `+12`, 4바이트 | 110 | 110, 유지 |
+
+파일 항목이나 CDH를 삭제하지 않았으므로 엔트리 수와 중앙 디렉터리 크기는 바꾸지 않는다. 두 파일의 내용과 CRC도 그대로다. 원본과 변형 파일의 실제 필드 값은 패키지의 `observed_run/structure.json`에 기록했다.
+
+### 역방향 대조군과 결과
+
+검사 역할은 `JarInputStream`이 읽은 파일에 `MARKER_BLOCK` 규칙을 적용한다. 후단인 `ZipFile`에는 검사 판정을 붙이지 않는다. 실험 A와 마찬가지로 후단은 대조 관측을 위해 모든 입력을 독립적으로 읽는다.
+
+| 입력 | `JarInputStream` 검사 역할이 읽은 파일 | 검사 판정 | `ZipFile` 후단 단독 실행 결과 |
+| --- | --- | --- | --- |
+| `safe_control.zip` | `safe.txt` | `PASS` | `safe.txt` 추출됨 |
+| `normal_marker_control.zip` | `safe.txt`, `marker.txt` | `BLOCK` | 두 파일 추출됨 |
+| `c1_interrupted_stream.zip` | `safe.txt` | **`PASS`** | **`marker.txt`를 포함한 두 파일 추출됨** |
+
+실행 로그에서 실험 B에 해당하는 부분은 다음과 같다.
+
+```text
+[c1_interrupted_stream]
+  input_same_and_unchanged=True
+  java-jar-stream: exit=0 entries=['safe.txt']
+  java-central: exit=0 entries=['safe.txt', 'marker.txt']
+  B_stream_to_central: scanner=PASS consumer_marker_extracted=True trees_equal=False marker_reachable_after_pass=True
+```
+
+이번에도 두 파서는 같은 ZIP을 읽었고 모두 정상 종료했다. 그러나 검사 역할은 `safe.txt`까지만 읽었고, 후단은 중앙 디렉터리를 따라 `marker.txt`까지 추출했다.
+
+반대 방향의 결과도 함께 확인했다. 실험 A의 ZIP을 `JarInputStream` 검사 역할에 넣으면 표식이 보여 `BLOCK`이 됐다. 실험 B의 ZIP을 Python 중앙 디렉터리 검사 역할에 넣어도 `BLOCK`이 됐다. **모호한 ZIP 하나가 모든 조합을 통과하는 것이 아니라, 검사와 사용이 어떤 방향으로 연결되는지가 중요하다.**
+
+### 실제 CVE와 연결되는 부분과 남은 차이
+
+Spring의 공식 공지는 CVE-2024-38807의 영향 조건을 `spring-boot-loader` 또는 `spring-boot-loader-classic`을 사용하면서, 중첩 JAR의 서명을 검증하는 사용자 정의 코드가 있는 애플리케이션으로 설명한다. [7]
+
+실험 B는 **스트리밍 검사 역할이 보지 못한 파일을 중앙 디렉터리 기반 후단이 읽는 방향**을 확인했다. 그러나 JDK `ZipFile`은 Spring Boot의 `ZipContent`와 다른 구현이다. 또한 이 실험에는 중첩 JAR, 전자서명, 서명자 확인이 없다. Java 코드도 `JarInputStream(..., false)`를 사용해 서명 검증을 실험 대상으로 삼지 않는다.
+
+따라서 이 결과의 정확한 범위는 **Spring Boot 사례와 같은 검사·사용 방향을 가진 C1 파서 차이의 축소 재현**이다. CVE-2024-38807의 서명 위조를 재현한 결과로 해석할 수는 없다. 논문 §6.4도 C1을 사용했다고 설명할 뿐, 공개된 그 문단만으로 실제 CVE의 구체적인 구성법을 하나로 확정할 수는 없다.
+
+Oracle 문서에서 `JarInputStream`의 서명 검증은 manifest와 서명 관련 엔트리의 배치, 엔트리를 끝까지 읽는 조건을 포함한다. 서명 없는 자료에서 예외가 발생하지 않았다는 사실만으로 서명 검증 성공을 주장해서는 안 된다. [12]
+
+## 7. 논문과 로컬 실험의 한계
+
 ### 저자가 밝힌 한계
 
 논문의 제한점 중 특히 중요한 것은 두 가지다. 첫째, 블랙박스 방식이라 내부 코드 커버리지를 활용하지 않는다. 둘째, 최종 추출 디렉터리가 파서 내부 상태를 모두 보여 주지는 않는다. 중복 파일이 처리되는 도중 서로 다른 엔트리가 선택되더라도 마지막에 덮어써지면 결과에서 차이가 사라질 수 있다. [2, §7.3]
 
 이는 방법론의 장점과 직접 연결된다. 외부 출력만 비교하면 여러 언어의 구현을 통합하기 쉬워진다. 반면 실제 애플리케이션이 내부에서 어떤 엔트리를 참조했는지까지는 알기 어렵다. 더 정밀한 관찰을 추가할수록 구현마다 별도의 계측이 필요해지고, 도구 통합 비용이 늘어날 수 있다.
 
-### 내가 추가로 확인하고 싶은 부분
+### 이번 로컬 실험이 다룬 범위
 
-나는 이 연구를 바탕으로 다음 세 가지를 더 확인하고 싶다.
+이번에는 정상 대조군과 C1의 두 구성만 확인했다. 50개 파서 전체를 실행하거나 14개 모호성 유형을 모두 재현하지는 않았다. 실험에서 사용한 파서 버전과 고정된 입력에서 나온 관측을 다른 제품과 모든 버전에 그대로 적용할 수는 없다.
 
-**첫째, 파서 쌍 중심의 결과를 실제 서비스 경로에 연결하는 일이다.** 수많은 파서 조합에서 차이가 생겨도, 특정 서비스가 그 조합을 사용하지 않거나 모호한 입력을 앞에서 거부하면 공격은 성립하지 않는다. 실제 검사·추출·사용 단계를 연결해 신뢰 판단이 달라지는 순간을 관측해야 한다.
+검사 규칙도 특정 ASCII 표식을 찾는 모의 규칙이다. 상용 백신의 탐지 성능, 메일 서비스의 전달 정책, 운영체제의 실행 시점 검사까지 측정한 실험은 아니다. 파일이 추출됐다는 사실과 실제로 실행됐다는 사실도 구분해야 한다.
 
-**둘째, 성공과 오류가 갈리는 경우의 정책이다.** 논문의 지표는 두 파서가 모두 성공하는 경우를 센다. 그런데 서비스가 검사 오류를 허용으로 바꾸는 식으로 동작한다면 성공과 오류의 차이도 중요할 수 있다. 이는 이 논문이 실증한 결론과 구분해서 새롭게 시험할 가설이다.
+실행기는 오류를 `ERROR`로 기록하고 통과로 취급하지 않는다. 이번 네 입력에서는 네 읽기 방식이 모두 종료 코드 0으로 완료됐고 표준 오류가 비어 있었다. 총 16회의 읽기 결과에서 관심 있는 두 조합의 추출 파일 집합이 실제로 달랐다.
 
-**셋째, 방어의 호환성 비용이다.** 이상한 ZIP을 모두 거부하면 단순해 보이지만, 실제 서비스가 지원해야 하는 복구 기능이나 확장 형식이 있을 수 있다. 검사 일관성을 높이는 것과 정상 사용을 유지하는 것 사이에서 어떤 입력을 받아들일지 정책이 필요하다.
+### 결과 비교는 관찰 기준까지 함께 설명해야 한다
 
-이 세 질문은 파서 차등 테스트를 애플리케이션 수준의 보안 평가로 확장하는 데 필요한 연결점이라고 생각한다.
+실행기에는 선택한 두 파서의 추출 결과가 다르면 차단하는 비교 규칙도 넣었다. 두 관심 사례는 이 규칙에서 모두 차단됐다. 이는 **이 표본에서 불일치를 발견할 수 있었다**는 관측이며, 모든 ZIP에 대한 완전한 방어를 입증한 것은 아니다.
 
-## 4. 오펜시브 보안에서 가져갈 것
+또한 지금의 비교는 경로, 크기, 파일 내용만 다룬다. 중복 이름의 중간 선택, 파일 권한, 심볼릭 링크, 플랫폼별 경로 처리 등은 별도 관찰이 필요하다. 비교 도구를 확장한다면 무엇을 결과에 포함하고 무엇을 제외했는지부터 명시해야 한다.
+
+## 8. 배운 점과 앞으로 할 일
 
 ### 취약점 분석의 단위를 처리 경로까지 넓히기
 
-이 논문을 통해 정리한 가장 중요한 관점은 **검사한 내용과 실제로 사용하는 내용이 같은지 확인하는 것**이다.
+이 논문을 읽고 실험하면서 가장 크게 바뀐 관점은 **검사한 내용과 실제로 사용하는 내용을 각각 기록해야 한다**는 점이다.
 
-앞으로 파일 업로드 기능을 분석한다면 확장자 허용 목록이나 압축 해제 함수만 볼 것이 아니라, 입력이 어디에서 해석되는지 먼저 표시하고 싶다. 보안 검사기, 미리보기, 변환기, 저장소, 실행기가 같은 파일을 다시 읽는다면 각 단계가 어떤 엔트리를 선택하는지 비교할 수 있다.
+처음에는 입력 ZIP의 해시가 같으면 같은 파일을 검사한 것이라고 생각하기 쉬웠다. 그러나 실험에서 입력 바이트는 그대로였고, 두 파서도 오류 없이 종료했다. 달랐던 것은 각자가 선택한 엔트리 집합이었다. 보안 판단이 어느 해석 결과에 붙어 있는지까지 따라가야 전체 동작을 설명할 수 있었다.
 
-또한 크래시가 없고 각 단계가 정상 완료되어도 전체 정책이 깨질 수 있다는 점을 기억하려 한다. 정상 종료는 해당 구성 요소가 처리를 마쳤다는 사실을 뜻한다. 다른 구성 요소와 의미가 일치한다는 보장까지 제공하지는 않는다.
-
-### 방어 관점에서 함께 생각할 점
-
-이 관점을 설계에 적용한다면 우선 **실제 사용한 해석 결과에 보안 판단을 연결**하는 방향을 검토하겠다. 예를 들어 한 단계에서 선택한 엔트리 집합을 다음 단계가 그대로 사용하도록 하거나, 복구·변환으로 해석 결과가 바뀌었을 때 이전 검증 결과를 무효화하는 방식이다.
-
-이것은 구체적인 시스템에 맞춰 검증해야 하는 설계 제안이다. 파일을 재포장해 정규화하는 접근도 고려할 수 있지만, 서명이나 원본 보존 요구가 있다면 부작용을 먼저 확인해야 한다. 서로 다른 파서를 여럿 실행해 비교하는 방식 역시 검사 비용과 지연을 함께 측정해야 한다. 논문의 방어 논의도 이러한 적용 조건과 선택지를 다룬다. [2, §7.2]
+앞으로 업로드 기능을 분석할 때는 검사기, 미리보기, 변환기, 저장소, 실제 사용 단계가 입력을 어디에서 다시 읽는지 표시하고 싶다. 라이브러리 이름뿐 아니라 API, 옵션, 복구 경로, 이름으로 조회하는 방식까지 함께 기록할 것이다.
 
 ### 다음에 읽을 논문
 
-| 논문 | 읽을 이유 |
+| 논문 | 이어서 확인할 질문 |
 | --- | --- |
-| The Silent Danger in HTTP: Identifying HTTP Desync Vulnerabilities with Gray-box Testing — USENIX Security 2025 | ZipDiff와 같은 해석 차이 문제를 HTTP에서 다룬다. 내부 커버리지와 상태를 활용하는 접근을 비교해, 블랙박스의 통합 편의성과 그레이박스의 관측력 사이의 차이를 공부하고 싶다. [8] |
-| T-Reqs: HTTP Request Smuggling with Differential Fuzzing — ACM CCS 2021 | 프록시와 원본 서버의 해석 차이를 차등 퍼징으로 찾는 연구다. ZIP의 검사·사용 관계를 웹 요청 처리 구조에 옮겨 이해하기 좋다. ZipDiff의 참고문헌에도 포함된다. [9] |
+| **The Silent Danger in HTTP: Identifying HTTP Desync Vulnerabilities with Gray-box Testing**, USENIX Security 2025 | 내부 상태와 커버리지를 관찰하면 외부 결과만 비교하는 방식의 한계를 얼마나 줄일 수 있는가. [8] |
+| **T-Reqs: HTTP Request Smuggling with Differential Fuzzing**, ACM CCS 2021 | 파서 간 차이를 발견한 뒤 실제 프록시와 서버의 처리 경로에서 어떻게 검증하는가. [9] |
 
-두 번째 논문은 **후속 독서용**이며 이번 미션의 제출 대상 연도에는 해당하지 않는다. 이번 리뷰의 대상은 USENIX Security 2025의 ZipDiff 논문 한 편이다.
+두 번째 논문은 후속 독서 대상이다. 이번 미션의 제출 대상은 2025년에 게재된 ZipDiff 한 편이며, 추가로 읽을 논문의 연도와 혼동하지 않는다.
 
-### 직접 구현한다면 작은 비교 도구부터 시작하기
+### 직접 구현하고 비교할 부분
 
-후속 프로젝트의 첫 목표는 모든 파서를 연결하는 것이 아니라, **한 처리 경로에서 입력·판단·사용 결과를 연결해서 기록하는 도구**로 잡고 싶다.
+다음 프로젝트는 이번 비교 실행기에 **실제로 연결된 로컬 검사·사용 경로**를 추가하는 방향으로 잡고 싶다. 현재는 파서별 결과를 독립 측정하고, 검사 통과 시 후단에서 무엇을 보게 되는지 비교했다. 다음 단계에서는 `PASS`인 입력만 후단으로 전달하고, 그 전달과 사용을 로그로 남기겠다.
 
-| 단계 | 구체적으로 할 일 | 남길 결과 |
+| 단계 | 구현할 내용 | 확인할 지표 |
 | --- | --- | --- |
-| 1 | 파서 2~3개의 정확한 버전과 API, 옵션을 고정한다. | 실행 환경 기록 |
-| 2 | 무해한 텍스트가 들어 있는 정상 ZIP과 모호성 후보를 준비한다. | 입력 파일과 생성 조건 |
-| 3 | 파일 목록, 실제 읽은 내용, 최종 추출 결과, 예외와 종료 코드를 함께 저장한다. | 단계별 비교표 |
-| 4 | 자체 테스트 서비스의 검사 단계와 사용 단계를 연결한다. | 허용한 대상과 사용한 대상의 일치 여부 |
-| 5 | 거부 정책이나 단일 해석 경로를 적용한 뒤 같은 입력으로 비교한다. | 보안 효과와 호환성 변화 |
+| 1 | 업로드, 검사, 후단 읽기를 잇는 작은 로컬 서비스 | 검사한 파일 집합과 실제 사용한 파일 집합 |
+| 2 | 버전과 API를 고정한 추가 파서 연결 | 조합별 성공·오류·추출 차이 |
+| 3 | 모호한 구조 거부, 추출 결과 재사용, 결과 비교 규칙 적용 | 검사 누락 감소와 정상 파일 거부 여부 |
+| 4 | 정상 ZIP과 경계 조건 샘플로 반복 측정 | 처리 시간, 메모리, 허용률, 정책 위반 사례 |
 
-개선 효과를 평가할 때도 해석 차이의 개수만 세지 않겠다. 정상 입력이 얼마나 잘 처리되는지, 검사가 얼마나 느려지는지, 어떤 입력이 실제 보안 정책 위반으로 이어지는지를 함께 보겠다.
+먼저 적용해 볼 분야는 문서 업로드 서비스다. 검사기와 텍스트 추출기, 미리보기 생성기가 같은 문서에서 어떤 내용을 선택하는지 비교하면 된다. 그다음에는 HTTP 프록시와 백엔드로 질문을 확장할 수 있다. 다만 파일의 엔트리 집합과 HTTP 메시지 경계는 다른 관찰 대상이므로, 형식별로 비교 기준을 다시 설계해야 한다.
 
-대규모 실험은 별도 과제로 두는 편이 현실적이다. 공개 아티팩트는 전체 퍼징에 RAM 128GB와 디스크 300GB 이상을 권장한다. 구성 제거 실험은 3개 구성에 대해 각각 다섯 번씩 24시간을 실행하는 작업량이다. 리뷰를 마친 뒤 작은 비교 환경을 만들고, 필요에 따라 실험 범위를 넓히는 순서가 적절하다. [4, 10]
+방어를 설계한다면 실제 사용한 해석 결과에 보안 판단을 연결하는 방향을 우선 검토하겠다. 검사한 추출 결과를 후단이 그대로 사용하거나, 복구·변환으로 내용이 바뀌면 다시 검사하는 방식이다. 재포장으로 정규화할 때는 서명과 원본 보존 요구가 달라질 수 있으므로 효과와 비용을 함께 측정해야 한다. [2, §7.2]
 
-### 다른 분야로 확장한다면
+전체 ZipDiff 퍼징은 별도 과제로 두겠다. 저자 아티팩트는 RAM 128GB와 디스크 300GB 이상을 권장하며, 구성 비교 실험은 3개 설정을 각각 24시간씩 다섯 번 실행한다. 우선 작은 처리 경로를 정확히 설명할 수 있는 도구를 만들고, 이후 실험 규모를 넓히는 편이 현실적이다. [4, 10]
 
-나는 먼저 **문서 업로드 서비스**에 적용해 보고 싶다. 파일 검사, 텍스트 추출, 미리보기 생성이 각자 문서를 읽는 구조를 만들고, 각 단계가 선택한 내용의 해시와 엔트리 경로를 비교하는 것이다. 서로 다르게 읽는다면 그 차이가 실제 허용 정책이나 사용자 판단을 바꾸는지 확인할 수 있다.
-
-그다음에는 HTTP 프록시와 백엔드처럼 같은 입력을 연속해서 처리하는 환경으로 확장하고 싶다. 다만 ZIP의 변이 전략을 그대로 가져가는 대신, 대상 형식에서 의미가 중복되거나 경계가 모호해지는 지점을 새로 정의해야 한다.
-
-이 논문을 읽고 남은 질문은 구체적이다. **지금 안전하다고 판단한 대상은, 다음 구성 요소가 실제로 사용할 대상과 같은가?** 이 질문을 코드의 호출 관계와 실행 결과로 설명하기 위해, 아래에서는 두 파서를 연결한 작은 실험부터 진행했다.
-
-## 5. 추가 실험: Python과 Java가 같은 ZIP을 다르게 읽는 경우
-
-저는 이 내용을 아주 간단히 요약하자면 결국에는 하나의 ZIP 파일에 위험한 내용이 있는 파일과 안전한 내용의 파일이 같이 있는데 보안 검사기는 안전한 내용의 파일만 읽고 이 ZIP 파일은 안전하다고 판단할 수 있다고 결론을 내렸습니다. 논문에서 설명한 것처럼 테스트를 진행해 봤습니다.
-
-제가 직접 확인해 본 부분은 논문 §5.2.3의 **C1, Streaming Parsing**입니다. 그중에서도 로컬 파일 헤더는 있지만, 그에 대응하는 중앙 디렉터리 헤더가 없는 경우를 재현했습니다. [논문 원문](https://www.jianjunchen.com/p/zipdiff.USESEC25.pdf)
-
-실험에서는 Python 스크립트에 앞단의 검사 역할을, Java 프로그램에 뒷단의 압축 해제 역할을 맡겼습니다. 같은 ZIP을 두 프로그램에 전달했을 때 **실제로 읽고 추출하는 파일이 달라지는지** 확인하는 것이 목표였습니다.
-
-### 실험용 파일과 검사 규칙
-
-먼저 실제 악성코드 대신 무해한 텍스트 파일 두 개를 준비했습니다.
-
-| 파일 | 내용 | 실험에서의 역할 |
-| --- | --- | --- |
-| `safe.txt` | 평범한 실습 안내 문장 | 검사에서 허용할 파일 |
-| `marker.txt` | `찬양해야만해! dakuo , KOREANT`와 안내 문장 | 검사에서 차단할 파일 |
-
-검사 규칙은 간단하게 정했습니다.
-
-> 추출한 파일에서 `찬양해야만해! dakuo , KOREANT`가 발견되면 **BLOCK**, 발견되지 않으면 **PASS**로 판정합니다.
-
-이 문구는 검사 대상 파일을 구분하기 위한 표시 문자열입니다. 문구 자체에 위험한 기능이 있는 것은 아닙니다. 한글 인코딩 때문에 결과가 달라지는 일이 없도록 Python과 Java 모두 동일한 **UTF-8 바이트열**을 검사하도록 했습니다.
-
-Java 쪽에도 같은 규칙을 적용한 이유는 압축을 해제한 결과에 표시 문자열이 나타나는지 확인하기 위해서입니다. 여기서 PASS와 BLOCK은 제가 만든 실습용 규칙의 결과이며, 백신이나 압축 해제 API 자체가 내리는 보안 판정은 아닙니다.
-
-### ZIP 내부의 두 목록을 어긋나게 만들기
-
-이번 실험에서 핵심이 되는 `ambiguous_c1.zip`은 다음과 같이 구성했습니다.
-
-| ZIP 내부 구조 | 포함된 파일 |
-| --- | --- |
-| 로컬 파일 헤더와 실제 데이터 | `safe.txt`, `marker.txt` |
-| 중앙 디렉터리 | `safe.txt` |
-
-먼저 두 파일이 모두 들어 있는 정상 ZIP을 만들었습니다. 그다음 `marker.txt`에 대응하는 중앙 디렉터리 헤더만 제거했습니다.
-
-중앙 디렉터리에서 항목 하나가 빠졌으므로, 종료 레코드인 EOCD에 기록된 엔트리 수와 중앙 디렉터리 크기도 남은 목록에 맞게 수정했습니다. **로컬 파일 헤더와 실제 파일 내용은 그대로 유지했습니다.**
-
-쉽게 생각하면 ZIP 안에는 두 파일이 들어 있지만, 중앙 파일 목록에는 `safe.txt` 하나만 적혀 있는 상태입니다.
-
-이렇게 만든 입력은 ZIP 명세에 맞지 않습니다. 명세에서는 각 로컬 파일 헤더에 대응하는 중앙 디렉터리 헤더가 있어야 한다고 규정하고 있습니다. 저는 이 조건을 의도적으로 어긋나게 만든 뒤, 두 프로그램이 어떻게 처리하는지 확인했습니다. [PKWARE APPNOTE §4.3.2](https://pkware.cachefly.net/webdocs/casestudies/APPNOTE.TXT)
-
-비교한 API의 읽기 방식은 다음과 같습니다.
-
-| 프로그램 | 사용 API | 파일을 찾는 방식 |
-| --- | --- | --- |
-| Python | `zipfile.ZipFile` | 중앙 디렉터리에서 엔트리를 찾아 읽음 |
-| Java | `ZipInputStream` | 로컬 파일 헤더를 앞에서부터 순서대로 읽음 |
-
-Java 공식 문서에서도 `ZipInputStream`은 중앙 디렉터리 헤더를 읽지 않는다고 설명합니다. 이번 실험에서는 이 읽기 방식의 차이가 실제 추출 결과에도 나타나는지 살펴봤습니다. [Java 21 공식 문서](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/zip/ZipInputStream.html)
-
-### 실행 환경과 대조군
-
-2026년 11월 13일에 실제로 테스트한 환경은 다음과 같습니다.
-
-- Windows 11
-- Python 3.12.10
-- OpenJDK / Eclipse Temurin 21.0.12.1
-
-구조를 바꾼 ZIP 하나만 실행하면 검사 코드가 제대로 동작한 것인지 구분하기 어려울 수 있습니다. 그래서 정상 ZIP 두 종류를 대조군으로 함께 준비했습니다.
-
-| 입력 ZIP | Python의 파일 목록 / 판정 | Java의 파일 목록 / 판정 | 추출 결과 |
-| --- | --- | --- | --- |
-| `safe_control.zip` | `safe.txt` / **PASS** | `safe.txt` / **PASS** | 일치 |
-| `normal_marker_control.zip` | 두 파일 / **BLOCK** | 두 파일 / **BLOCK** | 일치 |
-| `ambiguous_c1.zip` | `safe.txt` / **PASS** | 두 파일 / **BLOCK** | **불일치** |
-
-실행 결과는 위 표와 같이 나왔습니다.
-
-첫 번째 ZIP에서는 양쪽 모두 `safe.txt`만 읽고 PASS로 판정했습니다. 두 번째 ZIP에서는 양쪽 모두 `marker.txt`까지 읽었고, 표시 문자열을 찾아 BLOCK으로 판정했습니다.
-
-여기서 두 번째 대조군이 중요하다고 생각했습니다. 정상적인 중앙 디렉터리에 `marker.txt`가 포함되어 있으면 **Python 쪽 검사도 문구를 제대로 찾아낸다**는 것을 확인할 수 있기 때문입니다.
-
-세 번째 ZIP에서는 결과가 달라졌습니다. Python은 중앙 디렉터리에 적힌 `safe.txt`만 읽고 PASS로 판정했지만, Java는 로컬 파일 헤더를 따라 `marker.txt`까지 읽어 BLOCK으로 판정했습니다.
-
-따라서 이때 Python의 PASS는 한글 문구를 인식하지 못해서 나온 결과가 아닙니다. **검사해야 할 `marker.txt` 자체를 읽지 않았기 때문에** 나온 결과였습니다.
-
-### 실제 출력과 해시 비교
-
-`ambiguous_c1.zip`을 실행했을 때 나온 핵심 출력은 다음과 같습니다.
-
-```text
-[ambiguous_c1]
-  input unchanged and equal: True
-  Python: exit=0 entries=['safe.txt'] policy=PASS
-  Java:   exit=0 entries=['safe.txt', 'marker.txt'] policy=BLOCK
-  output tree hashes equal: False
-  final comparison policy: BLOCK
-  expected result verified: True
-```
-
-양쪽 모두 `exit=0`으로 처리를 마쳤습니다. 즉, 한쪽 프로그램이 오류로 중단되어 파일을 덜 읽은 상황이 아니라, **두 프로그램이 정상적으로 처리를 마쳤는데 추출한 파일 집합이 달랐던 상황**입니다.
-
-저는 이 결과를 확인하면서 입력 ZIP의 해시와 추출 결과의 해시도 나누어 비교했습니다.
-
-| 비교 대상 | 결과 | 확인한 내용 |
-| --- | --- | --- |
-| 두 프로그램이 실제로 읽은 ZIP의 SHA-256 | 같음 | 같은 바이트를 입력으로 받았음 |
-| 실행 전·중간·후 ZIP의 SHA-256 | 같음 | 실험 중 입력 파일이 바뀌지 않았음 |
-| 추출한 파일 트리의 해시 | 다름 | 실제로 만들어진 파일 집합이 달랐음 |
-
-각 프로세스는 ZIP을 바이트 배열로 읽은 뒤, 그 배열의 해시를 계산하고 같은 배열을 파싱하도록 했습니다. 실행기에서도 Python 실행 전, Python 실행 후, Java 실행 후의 입력 파일 해시를 확인했습니다.
-
-출력 트리는 파일별 상대 경로, 크기, 내용의 SHA-256을 기록하고 경로순으로 정렬한 뒤, 그 기록 전체에 대한 해시를 계산했습니다. 수정 시각이나 권한처럼 이번 실험에서 비교하려는 대상이 아닌 정보는 포함하지 않았습니다.
-
-여기서 구분해야 할 점도 있습니다. `normal_marker_control.zip`과 `ambiguous_c1.zip`은 중앙 디렉터리가 다르기 때문에 ZIP 파일 자체의 해시도 서로 다릅니다.
-
-제가 확인한 것은 이 두 ZIP의 해시가 같다는 것이 아니라, **하나의 `ambiguous_c1.zip`을 Python과 Java에 똑같이 전달했는데도 추출 결과가 달라졌다는 것**입니다.
-
-### 실험에서 확인한 점
-
-이번 실험을 통해 제가 처음 이해한 상황을 작은 예제로 확인할 수 있었습니다.
-
-Python의 검사 결과만 신뢰하고 같은 ZIP을 Java로 다시 처리한다면, 검사 단계에서는 읽지 않았던 `marker.txt`가 후속 처리 단계에서 나타날 수 있었습니다. 입력 파일의 해시가 같고 두 프로그램이 모두 정상 종료했더라도, 실제로 읽은 내용까지 같다고 볼 수는 없었습니다.
-
-실습 스크립트에는 두 프로그램의 결과를 비교하는 단계도 넣었습니다. 출력이 서로 다르거나 표시 문자열이 검출되면 최종적으로 BLOCK 처리하도록 했고, 이 규칙에서는 `ambiguous_c1.zip`이 차단됐습니다.
-
-다만 특정 파서 두 개의 결과를 비교하는 것만으로 모든 ZIP 입력의 안전성을 보장할 수 있다고 생각하지는 않습니다. 이번 실험은 무해한 텍스트와 직접 만든 검사 규칙으로 확인한 사례이며, 실제 백신이나 상용 제품의 보안 우회를 입증한 결과는 아닙니다.
-
-제가 이번 실험에서 얻은 가장 중요한 점은 **같은 파일을 전달했다는 사실과 같은 내용을 검사했다는 사실은 구분해야 한다는 것**입니다. 논문을 읽을 때는 개념으로 이해했던 **“검사한 내용과 실제로 사용하는 내용이 같은가”**라는 질문을, 직접 만든 ZIP의 입력과 출력으로 확인해 볼 수 있었습니다.
-
-## 부록: 작은 로컬 실험으로 본 비교 기준의 중요성
-
-아래는 5절의 실험과 별개로, 리뷰 작성 과정에서 **별도 Linux 환경**에서 수행한 소규모 확인이다. Python 3.12.14와 Info-ZIP UnZip 6.00을 사용했다. 논문의 50개 파서 평가나 실제 제품의 공격을 재현한 실험은 아니다.
-
-입력은 `note.txt`라는 이름의 엔트리가 두 번 들어 있는 ZIP이다. 앞 엔트리의 내용은 `FIRST`, 뒤 엔트리의 내용은 `LAST`다. 압축 파일에는 무해한 텍스트만 담았으며, 외부 서비스를 대상으로 요청을 보내지 않았다.
-
-```python
-import subprocess
-import tempfile
-import warnings
-import zipfile
-from pathlib import Path
-
-with tempfile.TemporaryDirectory() as tmp:
-    root = Path(tmp)
-    archive = root / "duplicate.zip"
-
-    with warnings.catch_warnings():
-        warnings.simplefilter("ignore", UserWarning)
-        with zipfile.ZipFile(archive, "w", compression=zipfile.ZIP_STORED) as z:
-            z.writestr("note.txt", "FIRST\n")
-            z.writestr("note.txt", "LAST\n")
-
-    with zipfile.ZipFile(archive) as z:
-        print("Python name:", repr(z.read("note.txt")))
-        print("Python entries:", [z.read(info) for info in z.infolist()])
-        z.extractall(root / "python")
-
-    result = subprocess.run(
-        ["unzip", "-p", str(archive), "note.txt"],
-        capture_output=True, check=True,
-    )
-    print("unzip -p:", repr(result.stdout))
-    print("unzip -p status:", result.returncode, repr(result.stderr))
-
-    result = subprocess.run(
-        ["unzip", "-o", str(archive), "-d", str(root / "infozip")],
-        capture_output=True, check=True,
-    )
-    print("unzip -o status:", result.returncode, repr(result.stderr))
-    print("Python disk:", repr((root / "python" / "note.txt").read_bytes()))
-    print("Info-ZIP disk:", repr((root / "infozip" / "note.txt").read_bytes()))
-```
-
-`unzip` 명령이 설치된 Linux 환경에서 실행할 수 있다. 이 환경에서 관측된 결과는 다음과 같다.
-
-| 비교한 동작 | 관측 결과 |
-| --- | --- |
-| Python에서 이름으로 읽기 | `LAST\n` |
-| Python에서 엔트리를 하나씩 읽기 | `FIRST\n`, `LAST\n` |
-| `unzip -p`로 같은 이름의 내용을 출력 | `FIRST\nLAST\n`, 종료 코드 0, stderr 없음 |
-| Python `extractall`의 최종 파일 | `LAST\n` |
-| `unzip -o`의 최종 파일 | `LAST\n`, 종료 코드 0, stderr 없음 |
-
-이름으로 한 파일을 조회하는 것과, 조건에 맞는 엔트리들의 내용을 표준 출력으로 내보내는 것은 같은 인터페이스가 아니다. 표준 출력만 비교하면 차이가 보이지만, **최종 디렉터리에 추출된 내용은 양쪽이 같았다.** 따라서 이 예제를 논문의 추출 결과 불일치나 새 취약점을 재현한 것으로 세면 안 된다.
-
-이 작은 확인에서 배운 것은 실험을 시작하기 전에 비교 대상을 명확히 해야 한다는 점이다. 파일 목록을 비교하는지, 특정 엔트리를 읽는지, 최종 파일 트리를 비교하는지에 따라 관측하는 성질이 다르다. 후속 실험에서도 결과 내용과 함께 예외, 경고, 종료 코드를 기록하겠다.
+**같은 파일을 전달했다는 사실만으로 같은 내용을 검사했다고 볼 수는 없다.** 두 방향의 실험을 통해 이 차이가 파일 목록과 실제 추출 결과에 나타나는 것을 확인했다. 앞으로는 그 차이가 실제 애플리케이션의 허용 판단과 사용 결과를 바꾸는 지점까지 추적해 보고 싶다.
 
 ## 참고 자료
 
@@ -485,3 +613,6 @@ with tempfile.TemporaryDirectory() as tmp:
 9. [T-Reqs, ACM CCS 2021](https://doi.org/10.1145/3460120.3485384) — [저자 연구실 공개 원문](https://seclab.nu/static/publications/ccs2021treqs.pdf).
 10. [USENIX Security 2025 ZipDiff 아티팩트 부록](https://secartifacts.github.io/usenixsec2025/appendix-files/sec25cycle2ae-final28.pdf) — 재현 환경과 평가 절차.
 11. [Java 21 ZipInputStream 공식 문서](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/zip/ZipInputStream.html) — 로컬 파일 헤더를 순서대로 읽는 스트리밍 API의 동작.
+12. [Java 21 JarInputStream 공식 문서](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/jar/JarInputStream.html) — manifest 처리와 서명 검증의 조건.
+13. [Java 21 ZipFile 공식 문서](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/zip/ZipFile.html) — 중앙 디렉터리 기반 후단에 사용한 JDK API.
+14. [Python 3.12 zipfile 공식 문서](https://docs.python.org/3.12/library/zipfile.html) — 엔트리 열거, 읽기와 CRC 검사.
