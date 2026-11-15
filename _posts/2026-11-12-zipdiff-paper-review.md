@@ -1,13 +1,12 @@
 ---
-title: "[HSKF 3기] 같은 ZIP이 다르게 보일 때 — ZipDiff 논문 리뷰"
+title: "[논문리뷰]ZipDiff — ZIP 파서의 해석 차이와 보안 우회"
 description: "USENIX Security 2025 ZipDiff의 문제의식과 방법론을 살펴보고, C1의 두 가지 구성법을 무해한 텍스트로 재현해 검사와 사용의 해석 차이를 확인한다."
 date: 2026-11-12 00:00:00 +0900
-last_modified_at: 2026-11-14
+last_modified_at: 2026-11-16
 categories: [study, security]
 tags: [hskf, paper-review, zip, fuzzing, differential-testing, usenix-security]
 study_collection: "HSKF 3기"
-study_level: "논문 리뷰"
-study_problem: "ZipDiff — ZIP 파서의 해석 차이와 보안 우회"
+study_problem: "[논문리뷰]ZipDiff — ZIP 파서의 해석 차이와 보안 우회"
 study_area: "USENIX Security 2025"
 study_link_label: "리뷰 보기"
 toc: true

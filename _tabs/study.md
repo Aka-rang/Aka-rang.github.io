@@ -36,8 +36,24 @@ permalink: /study/
         <span class="writeup-tree-count">{{ study_group.items.size }}</span>
       </summary>
 
+      {% assign direct_posts = study_group.items | where_exp: "post", "post.study_level == nil or post.study_level == ''" | sort: "date" | reverse %}
+      {% if direct_posts.size > 0 %}
+        <ul class="writeup-tree-leaves">
+          {% for post in direct_posts %}
+            <li>
+              <a href="{{ post.url | relative_url }}" class="writeup-tree-link">
+                <span class="writeup-tree-title">{{ post.title | escape }}</span>
+                <time datetime="{{ post.date | date_to_xmlschema }}">{{ post.date | date: "%Y.%m.%d" }}</time>
+              </a>
+            </li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+
+      {% assign leveled_posts = study_group.items | where_exp: "post", "post.study_level != nil and post.study_level != ''" %}
+      {% if leveled_posts.size > 0 %}
       <div class="study-tree-levels">
-        {% assign level_groups = study_group.items | group_by_exp: "post", "post.study_level | default: '기타'" | sort: "name" %}
+        {% assign level_groups = leveled_posts | group_by: "study_level" | sort: "name" %}
         {% for level in level_groups %}
           <details class="study-tree-level">
             <summary>
@@ -70,6 +86,7 @@ permalink: /study/
           </details>
         {% endfor %}
       </div>
+      {% endif %}
     </details>
   {% endfor %}
 </div>
