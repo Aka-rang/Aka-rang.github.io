@@ -3,6 +3,7 @@ title: Study
 icon: fas fa-book-open
 order: 2
 permalink: /study/
+reading_mode: true
 ---
 
 보안 공부, 개발 메모, 실습 기록을 모아두는 공간입니다.
