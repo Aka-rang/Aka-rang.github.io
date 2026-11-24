@@ -5,6 +5,7 @@ date: 2026-11-17 00:00:00 +0900
 categories: [study]
 tags: [hskf, reflection]
 study_collection: "HSKF 3기"
+study_category: "회고"
 toc: true
 comments: false
 reading_mode: true

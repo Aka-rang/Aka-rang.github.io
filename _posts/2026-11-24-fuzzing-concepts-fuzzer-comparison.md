@@ -6,6 +6,7 @@ last_modified_at: 2026-11-24
 categories: [study, security]
 tags: [hskf, fuzzing, fuzzer, aflplusplus, libfuzzer, security-testing]
 study_collection: "HSKF 3기"
+study_category: "보안 동향·개념"
 toc: true
 comments: false
 reading_mode: true

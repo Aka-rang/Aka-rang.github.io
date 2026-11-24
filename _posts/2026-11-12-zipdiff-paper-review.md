@@ -6,6 +6,7 @@ last_modified_at: 2026-11-16
 categories: [study, security]
 tags: [hskf, paper-review, zip, fuzzing, differential-testing, usenix-security]
 study_collection: "HSKF 3기"
+study_category: "논문 리뷰"
 study_problem: "[논문리뷰]ZipDiff — ZIP 파서의 해석 차이와 보안 우회"
 study_area: "USENIX Security 2025"
 study_link_label: "리뷰 보기"

@@ -37,56 +37,107 @@ reading_mode: true
         <span class="writeup-tree-count">{{ study_group.items.size }}</span>
       </summary>
 
-      {% assign direct_posts = study_group.items | where_exp: "post", "post.study_level == nil or post.study_level == ''" | sort: "date" | reverse %}
-      {% if direct_posts.size > 0 %}
-        <ul class="writeup-tree-leaves">
-          {% for post in direct_posts %}
-            <li>
-              <a href="{{ post.url | relative_url }}" class="writeup-tree-link">
-                <span class="writeup-tree-title">{{ post.title | escape }}</span>
-                <time datetime="{{ post.date | date_to_xmlschema }}">{{ post.date | date: "%Y.%m.%d" }}</time>
-              </a>
-            </li>
+      {% if study_group.name == "HSKF 3기" %}
+        {% assign hskf_categories = "취약점 분석|논문 리뷰|보안 동향·개념|회고" | split: "|" %}
+        <div class="study-tree-levels">
+          {% for category in hskf_categories %}
+            {% assign category_posts = study_group.items | where: "study_category", category | sort: "date" | reverse %}
+            {% if category_posts.size > 0 %}
+              <details class="study-tree-level">
+                <summary>
+                  <span class="writeup-tree-icon"><i class="fas fa-layer-group"></i></span>
+                  <span class="writeup-tree-name">{{ category }}</span>
+                  <span class="writeup-tree-count">{{ category_posts.size }}</span>
+                </summary>
+
+                <ul class="writeup-tree-leaves">
+                  {% for post in category_posts %}
+                    <li>
+                      <a href="{{ post.url | relative_url }}" class="writeup-tree-link">
+                        <span class="writeup-tree-title">{{ post.title | escape }}</span>
+                        <time datetime="{{ post.date | date_to_xmlschema }}">{{ post.date | date: "%Y.%m.%d" }}</time>
+                      </a>
+                    </li>
+                  {% endfor %}
+                </ul>
+              </details>
+            {% endif %}
           {% endfor %}
-        </ul>
-      {% endif %}
 
-      {% assign leveled_posts = study_group.items | where_exp: "post", "post.study_level != nil and post.study_level != ''" %}
-      {% if leveled_posts.size > 0 %}
-      <div class="study-tree-levels">
-        {% assign level_groups = leveled_posts | group_by: "study_level" | sort: "name" %}
-        {% for level in level_groups %}
-          <details class="study-tree-level">
-            <summary>
-              <span class="writeup-tree-icon"><i class="fas fa-layer-group"></i></span>
-              <span class="writeup-tree-name">{{ level.name }}</span>
-              <span class="writeup-tree-count">{{ level.items.size }}</span>
-            </summary>
+          {% assign uncategorized_posts = study_group.items | where_exp: "post", "post.study_category == nil or post.study_category == ''" | sort: "date" | reverse %}
+          {% if uncategorized_posts.size > 0 %}
+            <details class="study-tree-level">
+              <summary>
+                <span class="writeup-tree-icon"><i class="fas fa-layer-group"></i></span>
+                <span class="writeup-tree-name">기타</span>
+                <span class="writeup-tree-count">{{ uncategorized_posts.size }}</span>
+              </summary>
 
-            <div class="study-tree-problems">
-              {% assign level_posts = level.items | sort: "study_problem" %}
-              {% for post in level_posts %}
-                <details class="study-tree-problem">
-                  <summary>
-                    <span class="writeup-tree-icon"><i class="fas fa-cube"></i></span>
-                    <span class="writeup-tree-name">{{ post.study_problem | default: post.title }}</span>
-                    {% if post.study_area %}
-                      <span class="writeup-tree-meta">{{ post.study_area }}</span>
-                    {% endif %}
-                  </summary>
-
-                  <div class="study-tree-solution-wrap">
-                    <a href="{{ post.url | relative_url }}" class="study-tree-solution">
-                      <span><i class="fas fa-file-alt"></i> {{ post.study_link_label | default: '풀이 보기' }}</span>
+              <ul class="writeup-tree-leaves">
+                {% for post in uncategorized_posts %}
+                  <li>
+                    <a href="{{ post.url | relative_url }}" class="writeup-tree-link">
+                      <span class="writeup-tree-title">{{ post.title | escape }}</span>
                       <time datetime="{{ post.date | date_to_xmlschema }}">{{ post.date | date: "%Y.%m.%d" }}</time>
                     </a>
-                  </div>
-                </details>
-              {% endfor %}
-            </div>
-          </details>
-        {% endfor %}
-      </div>
+                  </li>
+                {% endfor %}
+              </ul>
+            </details>
+          {% endif %}
+        </div>
+      {% else %}
+        {% assign direct_posts = study_group.items | where_exp: "post", "post.study_level == nil or post.study_level == ''" | sort: "date" | reverse %}
+        {% if direct_posts.size > 0 %}
+          <ul class="writeup-tree-leaves">
+            {% for post in direct_posts %}
+              <li>
+                <a href="{{ post.url | relative_url }}" class="writeup-tree-link">
+                  <span class="writeup-tree-title">{{ post.title | escape }}</span>
+                  <time datetime="{{ post.date | date_to_xmlschema }}">{{ post.date | date: "%Y.%m.%d" }}</time>
+                </a>
+              </li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+
+        {% assign leveled_posts = study_group.items | where_exp: "post", "post.study_level != nil and post.study_level != ''" %}
+        {% if leveled_posts.size > 0 %}
+        <div class="study-tree-levels">
+          {% assign level_groups = leveled_posts | group_by: "study_level" | sort: "name" %}
+          {% for level in level_groups %}
+            <details class="study-tree-level">
+              <summary>
+                <span class="writeup-tree-icon"><i class="fas fa-layer-group"></i></span>
+                <span class="writeup-tree-name">{{ level.name }}</span>
+                <span class="writeup-tree-count">{{ level.items.size }}</span>
+              </summary>
+
+              <div class="study-tree-problems">
+                {% assign level_posts = level.items | sort: "study_problem" %}
+                {% for post in level_posts %}
+                  <details class="study-tree-problem">
+                    <summary>
+                      <span class="writeup-tree-icon"><i class="fas fa-cube"></i></span>
+                      <span class="writeup-tree-name">{{ post.study_problem | default: post.title }}</span>
+                      {% if post.study_area %}
+                        <span class="writeup-tree-meta">{{ post.study_area }}</span>
+                      {% endif %}
+                    </summary>
+
+                    <div class="study-tree-solution-wrap">
+                      <a href="{{ post.url | relative_url }}" class="study-tree-solution">
+                        <span><i class="fas fa-file-alt"></i> {{ post.study_link_label | default: '풀이 보기' }}</span>
+                        <time datetime="{{ post.date | date_to_xmlschema }}">{{ post.date | date: "%Y.%m.%d" }}</time>
+                      </a>
+                    </div>
+                  </details>
+                {% endfor %}
+              </div>
+            </details>
+          {% endfor %}
+        </div>
+        {% endif %}
       {% endif %}
     </details>
   {% endfor %}

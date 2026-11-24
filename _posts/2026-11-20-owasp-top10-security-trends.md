@@ -5,6 +5,7 @@ date: 2026-11-20 00:00:00 +0900
 categories: [study]
 tags: [hskf, owasp, web, access-control]
 study_collection: "HSKF 3기"
+study_category: "보안 동향·개념"
 toc: true
 comments: false
 reading_mode: true
